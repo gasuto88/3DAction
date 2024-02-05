@@ -25,9 +25,6 @@ public class GravityScript : MonoBehaviour
 	[SerializeField,Header("重力の強さ"),Range(0,100)]
 	private float _gravityPower = 0f;
 
-	[SerializeField, Header("当たり判定の大きさ")]
-	private Vector3 _halfSize = default;
-
 	// 自分のTransform
 	private Transform _myTransform = default;
 
@@ -36,9 +33,6 @@ public class GravityScript : MonoBehaviour
 
 	// 重力の方向
 	private Vector3 _gravityDirection = default;	
-
-	// Raycastの最大距離
-	private float _maxRaycast = default;
 
 	// 惑星の半径
 	private float _planetRadius = default;
@@ -86,16 +80,15 @@ public class GravityScript : MonoBehaviour
 		_myTransform.position += _gravityDirection * _gravityPower * Time.deltaTime;
 	}
 
+	/// <summary>
+	/// 重力回転処理
+	/// </summary>
 	private void RotateGravity()
     {
 		// 惑星の方向を設定
-		_gravityDirection = _planet.position - _myTransform.position;
+		//_gravityDirection = _planet.position - _myTransform.position;
 
-		//_myTransform.LookAt(_planet.position);
-
-		//Quaternion gravityRotate = Quaternion.LookRotation(_gravityDirection);
-
-		//_myTransform.rotation = gravityRotate;
+		//_myTransform.LookAt(_planet);
     }
 
 	/// <summary>
@@ -112,15 +105,4 @@ public class GravityScript : MonoBehaviour
 		}
 		return false;
 	}
-
-	///// <summary>
-	///// 着地判定描画処理
-	///// </summary>
-	//private void OnDrawGizmos()
-	//{
-	//	Gizmos.color = Color.green;
-
-	//	Gizmos.DrawWireCube(transform.position, _halfSize);
-	//}
-
 }

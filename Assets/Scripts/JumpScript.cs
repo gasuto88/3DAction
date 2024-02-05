@@ -23,9 +23,6 @@ public class JumpScript : MonoBehaviour
 	[SerializeField,Header("ジャンプ速度"),Range(0,1000)]
 	private float _jumpSpeed = default;
 
-	[SerializeField, Header("当たり判定の大きさ")]
-	private Vector3 _halfSize = default;
-
 	[SerializeField,Header("ジャンプ時間"),Range(0,5)]
 	private float _baseTime = default;
 
@@ -65,6 +62,10 @@ public class JumpScript : MonoBehaviour
 	{
 		// 自分のTransformを設定
 		_myTransform = transform;
+
+		_legTransform = _myTransform;
+
+		_legTransform.position -= _myTransform.up * _myTransform.localScale.y / 2;
 
 		// InputScripを取得
 		_inputScript = GetComponent<InputScript>();
@@ -112,7 +113,7 @@ public class JumpScript : MonoBehaviour
 	private bool IsGround()
 	{
 		// 惑星までの距離を設定
-		float distance = Vector3.Distance(_planet.position, _myTransform.position);
+		float distance = Vector3.Distance(_planet.position, _legTransform.position);
 
 		if (distance < _planetRadius)
 		{
