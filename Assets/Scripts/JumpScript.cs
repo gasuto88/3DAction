@@ -103,7 +103,7 @@ public class JumpScript : MonoBehaviour
 		// タイマー判定
         if (Timer() == TimerState.Execute)
         {
-			_myTransform.position += Vector3.up * _jumpSpeed * Time.deltaTime;
+			_myTransform.position += _myTransform.up * _jumpSpeed * Time.deltaTime;
 		}
     }
 

@@ -25,14 +25,17 @@ public class GravityScript : MonoBehaviour
 	[SerializeField,Header("重力の強さ"),Range(0,100)]
 	private float _gravityPower = 0f;
 
+	[SerializeField,Header("重力の回転"),Range(0,100)]
+	private float _rotationSpeed = 0f;
+
 	// 自分のTransform
 	private Transform _myTransform = default;
 
+	// 足元のTransform
+	private Transform _legTransform = default;
+
 	// 惑星のTransform
 	private Transform _planet = default;
-
-	// 重力の方向
-	private Vector3 _gravityDirection = default;	
 
 	// 惑星の半径
 	private float _planetRadius = default;
@@ -52,6 +55,10 @@ public class GravityScript : MonoBehaviour
 
 		// 惑星の半径
 		_planetRadius = _planet.localScale.x / 2;
+
+		_legTransform = _myTransform;
+
+		_legTransform.position -= _myTransform.up * _myTransform.localScale.y / 2;
 	}
 
 	/// <summary>
@@ -74,10 +81,10 @@ public class GravityScript : MonoBehaviour
     private void Gravity()
     {
 		// 惑星の方向を設定
-		 _gravityDirection = _planet.position - _myTransform.position;
+		Vector3 direction = _planet.position - _legTransform.position;
 
 		// 重力
-		_myTransform.position += _gravityDirection * _gravityPower * Time.deltaTime;
+		_myTransform.position += direction * _gravityPower * Time.deltaTime;
 	}
 
 	/// <summary>
@@ -86,10 +93,15 @@ public class GravityScript : MonoBehaviour
 	private void RotateGravity()
     {
 		// 惑星の方向を設定
-		//_gravityDirection = _planet.position - _myTransform.position;
+		Vector3 direction = _planet.position - _legTransform.position;
+		
+		// 重力の角度を設定
+		Quaternion gravityRotation 
+			= Quaternion.FromToRotation(-_myTransform.up, direction) * _myTransform.rotation;
 
-		//_myTransform.LookAt(_planet);
-    }
+		// 角度を設定
+		_myTransform.rotation = gravityRotation;
+	}
 
 	/// <summary>
 	/// 着地判定
@@ -97,12 +109,18 @@ public class GravityScript : MonoBehaviour
 	private bool IsGround()
 	{
 		// 惑星までの距離を設定
-		float distance = Vector3.Distance(_planet.position, _myTransform.position);
+		float distance = Vector3.Distance(_planet.position, _legTransform.position);
 		
 		if (distance < _planetRadius)
 		{
 			return true;
 		}
+
 		return false;
 	}
+
+	//private void IntoPlanet()
+ //   {
+	//	_myTransform.position = _planet.position + _planet.position - _legTransform.position;
+	//}
 }
