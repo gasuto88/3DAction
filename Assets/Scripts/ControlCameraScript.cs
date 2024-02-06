@@ -53,8 +53,11 @@ public class ControlCameraScript : MonoBehaviour
 	private void CameraControl()
     {
 		//_offset = _player.position - _myTransform.position;
+		Vector3 cameraPosition = _player.position + _offset;
 
 		// 座標を設定
-		_myTransform.position = _player.position + _offset;
+		_myTransform.position = cameraPosition;
+
+		_myTransform.LookAt(_player);
     }
 }

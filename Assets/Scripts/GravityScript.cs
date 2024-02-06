@@ -28,11 +28,11 @@ public class GravityScript : MonoBehaviour
 	[SerializeField,Header("重力の回転"),Range(0,100)]
 	private float _rotationSpeed = 0f;
 
+	[SerializeField, Header("足元の座標")]
+	private Transform _legTransform = default;
+
 	// 自分のTransform
 	private Transform _myTransform = default;
-
-	// 足元のTransform
-	private Transform _legTransform = default;
 
 	// 惑星のTransform
 	private Transform _planet = default;
@@ -55,10 +55,6 @@ public class GravityScript : MonoBehaviour
 
 		// 惑星の半径
 		_planetRadius = _planet.localScale.x / 2;
-
-		_legTransform = _myTransform;
-
-		_legTransform.position -= _myTransform.up * _myTransform.localScale.y / 2;
 	}
 
 	/// <summary>
@@ -106,10 +102,10 @@ public class GravityScript : MonoBehaviour
 	/// <summary>
 	/// 着地判定
 	/// </summary>
-	private bool IsGround()
+	public bool IsGround()
 	{
 		// 惑星までの距離を設定
-		float distance = Vector3.Distance(_planet.position, _legTransform.position);
+		float distance = DistanceToPlanet(_planet.position,_legTransform.position);
 		
 		if (distance < _planetRadius)
 		{
@@ -119,8 +115,24 @@ public class GravityScript : MonoBehaviour
 		return false;
 	}
 
-	//private void IntoPlanet()
- //   {
-	//	_myTransform.position = _planet.position + _planet.position - _legTransform.position;
-	//}
+	/// <summary>
+	/// 惑星までの距離を求める処理
+	/// </summary>
+	/// <param name="planet">惑星の中心座標</param>
+	/// <param name="myPoint">自分の座標</param>
+	/// <returns>距離</returns>
+	private float DistanceToPlanet(Vector3 planet,Vector3 myPoint)
+    {
+		// 2乗計算
+		float squareA = (myPoint.x - planet.x) * (myPoint.x - planet.x);
+		float squareB = (myPoint.y - planet.y) * (myPoint.y - planet.y);
+		float squareC = (myPoint.z - planet.z) * (myPoint.z - planet.z);
+
+		float radiusSquare = squareA + squareB + squareC;
+
+		// 2乗をルート化する
+		float distance = Mathf.Sqrt(radiusSquare);
+
+		return distance;
+    }
 }
