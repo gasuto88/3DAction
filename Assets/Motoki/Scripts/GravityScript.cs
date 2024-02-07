@@ -18,15 +18,15 @@ public class GravityScript : MonoBehaviour
 	// 地面
 	private const string GROUND = "Ground";
 
+	// 半分
+	private const int HALF = 2;
+
 	#endregion
 
 	#region フィールド変数
 
 	[SerializeField,Header("重力の強さ"),Range(0,100)]
 	private float _gravityPower = 0f;
-
-	[SerializeField,Header("重力の回転"),Range(0,100)]
-	private float _rotationSpeed = 0f;
 
 	[SerializeField, Header("足元の座標")]
 	private Transform _legTransform = default;
@@ -54,7 +54,7 @@ public class GravityScript : MonoBehaviour
 		_planet = GameObject.FindGameObjectWithTag("Planet").transform;
 
 		// 惑星の半径
-		_planetRadius = _planet.localScale.x / 2;
+		_planetRadius = _planet.localScale.x / HALF;
 	}
 
 	/// <summary>
@@ -77,7 +77,7 @@ public class GravityScript : MonoBehaviour
     private void Gravity()
     {
 		// 惑星の方向を設定
-		Vector3 direction = _planet.position - _legTransform.position;
+		Vector3 direction = _planet.position - _myTransform.position;
 
 		// 重力
 		_myTransform.position += direction * _gravityPower * Time.deltaTime;
@@ -89,7 +89,7 @@ public class GravityScript : MonoBehaviour
 	private void RotateGravity()
     {
 		// 惑星の方向を設定
-		Vector3 direction = _planet.position - _legTransform.position;
+		Vector3 direction = _planet.position - _myTransform.position;
 		
 		// 重力の角度を設定
 		Quaternion gravityRotation 

@@ -16,8 +16,10 @@ public class JumpScript : MonoBehaviour
 
 	#region 定数
 
-	// 地面
-	private const string GROUND = "Ground";
+	// 半分
+	private const int HALF = 2;
+
+	private const string JUMP = "Jump";
 
 	#endregion
 
@@ -27,7 +29,13 @@ public class JumpScript : MonoBehaviour
 	private float _jumpSpeed = default;
 
 	[SerializeField,Header("ジャンプ時間"),Range(0,5)]
-	private float _jumpTime = default;
+	private float _jumpBaseTime = default;
+
+	// タイマー
+	private float _jumpTime = 0f;
+
+	// タイマーの中間
+	private float _halfTime = 0f;
 
 	// 自分のTransform
 	private Transform _myTransform = default;
@@ -35,14 +43,19 @@ public class JumpScript : MonoBehaviour
 	// 入力クラス
 	private InputScript _inputScript = default;
 
-	// ジャンプ判定
-	private bool isJump = false;
-
-	// タイマークラス
-	private TimerScript _timerScript = default;
-
 	// 重力クラス
 	private GravityScript _gravityScript = default;
+
+	private Animator _playerAnimator = default;
+
+	private JumpState _jumpState = JumpState.START;
+
+	private enum JumpState
+    {
+		START,
+		JUMP,
+		END
+    }
 
 	#endregion
 
@@ -56,10 +69,12 @@ public class JumpScript : MonoBehaviour
 
 		// Scriptを取得
 		_inputScript = GetComponent<InputScript>();
-		_gravityScript = GetComponent<GravityScript>();		
+		_gravityScript = GetComponent<GravityScript>();
 
-		// タイマーを生成
-		_timerScript = new TimerScript(_jumpTime,TimerScript.TimerState.END);
+		// タイマーの中間を設定
+		_halfTime = _jumpBaseTime / HALF;
+
+		_playerAnimator = GetComponent<Animator>();
 	}
 	
 	/// <summary>
@@ -75,31 +90,75 @@ public class JumpScript : MonoBehaviour
 	/// </summary>
 	private void Jump()
     {
-		// ジャンプ判定
-		// 入力判定
-		// 着地判定
-		if (!isJump
-			&& _inputScript.IsSpace()
-			&& _gravityScript.IsGround())
-		{
-			isJump = true;
+        switch (_jumpState)
+        {
+			// 開始状態
+            case JumpState.START:
 
-			// タイマーの初期化
-			_timerScript.TimerReset();
-		}
-		else if (isJump)
-		{
-			if (_inputScript.IsSpace()
-				&& _timerScript.Execute() == TimerScript.TimerState.EXECUTE)
-			{
-				_myTransform.position += _myTransform.up * _jumpSpeed * Time.deltaTime;
-			}
-			else if (!_inputScript.IsSpace()
-				|| _timerScript.Execute() == TimerScript.TimerState.END)
-            {
-				isJump = false;
-            }
+				// 入力判定
+				// 着地判定
+				if (_inputScript.IsJump()
+					&& _gravityScript.IsGround())
+                {
+					_jumpState = JumpState.JUMP;
+
+					_playerAnimator.SetBool(JUMP, true);
+
+					// タイマーの初期化
+					_jumpTime = _jumpBaseTime;
+				}
+					break;
+
+			// ジャンプ状態
+            case JumpState.JUMP:
 			
-		}
+				// 上方向に移動
+				_myTransform.position 
+					+= _myTransform.up * DemandJumpPower(_jumpTime,_jumpBaseTime) 
+					*  _jumpSpeed * Time.deltaTime;
+
+				_jumpTime -= Time.deltaTime;
+
+				// タイマーが終了したら
+				if(_jumpTime <= 0f)
+                {
+					_jumpState = JumpState.END;
+                }
+
+				break;
+
+			// 終了状態
+            case JumpState.END:
+
+				// メモ 着地クールタイム
+
+				_playerAnimator.SetBool(JUMP, false);
+
+				_jumpState = JumpState.START;
+
+				break;
+        }
     }
+
+	/// <summary>
+	/// ジャンプの強さを求める処理
+	/// </summary>
+	/// <param name="time">経過時間</param>
+	/// <param name="baseTime">設定時間</param>
+	/// <returns>ジャンプの強さ</returns>
+	private float DemandJumpPower(float time,float baseTime)
+    {
+		float jumpPower = 0f;
+		
+		if(_halfTime < _jumpTime)
+        {
+			jumpPower = time;
+        }
+		else if (_jumpTime <= _halfTime)
+		{
+			jumpPower = time / baseTime;
+		}
+
+		return jumpPower;
+	}
 }
