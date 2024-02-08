@@ -40,12 +40,18 @@ public class GravityScript : MonoBehaviour
 	// 惑星の半径
 	private float _planetRadius = default;
 
-	#endregion
+    #endregion
 
-	/// <summary>
-	/// 更新前処理
-	/// </summary>
-	private void Start () 
+    #region 定数
+
+	public float GravityPower { get => _gravityPower; set => _gravityPower = value; }
+
+    #endregion
+
+    /// <summary>
+    /// 更新前処理
+    /// </summary>
+    private void Start () 
 	{
 		// 自分のTransformを設定
 		_myTransform = transform;

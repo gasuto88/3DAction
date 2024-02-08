@@ -21,7 +21,7 @@ public class MoveScript : MonoBehaviour
 	private const string RUN = "Run";
 
     // 半分の入力値
-    private const float HALFINPUT = 0.5f;
+    private const float HALF_INPUT = 0.5f;
 
     #endregion
 
@@ -48,8 +48,7 @@ public class MoveScript : MonoBehaviour
 	// 自分のTransform
 	private Transform _myTransform = default;
 
-	// 自分の座標
-	private Vector3 _myPosition = default;
+	private Vector3 _beforePosition = default;
 
 	// プレイヤーの子
 	private Transform _child = default;
@@ -59,6 +58,9 @@ public class MoveScript : MonoBehaviour
 
 	// 入力クラス
 	private InputScript _inputScript = default;
+
+	// 重力クラス
+	private GravityScript _gravityScript = default;
 
 	// 移動状態
 	private MoveState _moveState = MoveState.MOVE;
@@ -86,16 +88,19 @@ public class MoveScript : MonoBehaviour
 		// 自分のTransformを設定
 		_myTransform = transform;
 
-		// 自分の座標を設定
-		_myPosition = _myTransform.position;
+		_beforePosition = _myTransform.position;
 
 		// 子を取得
 		_child = _myTransform.GetChild(0);
- 
+
+		// 移動アニメーションを取得
 		_moveAnim = GetComponent<Animator>();
 
 		// InputScriptを取得
 		_inputScript = GetComponent<InputScript>();
+
+		// GravityScriptを取得
+		_gravityScript = GetComponent<GravityScript>();
 	}
 	
 	/// <summary>
@@ -114,16 +119,16 @@ public class MoveScript : MonoBehaviour
 		// 入力取得
 		Vector2 moveInput = _inputScript.InputMove();
 
-		// 入力されたら
-		if (0 == moveInput.x && 0 == moveInput.y)
-		{
-			_moveAnim.SetBool(RUN, false);
+        // 入力されたら
+        if (0 == moveInput.x && 0 == moveInput.y)
+        {
+            _moveAnim.SetBool(RUN, false);
 
 			_moveState = MoveState.STAY;
 		}
 
-		// 移動状態
-		switch (_moveState)
+        // 移動状態
+        switch (_moveState)
         {
             // 待機
             case MoveState.STAY:
@@ -133,7 +138,7 @@ public class MoveScript : MonoBehaviour
                 {
 					_moveSpeed = 0f;
 
-					_moveAnim.SetBool(RUN,true);
+					_moveAnim.SetBool(RUN, true);
 
 					_moveState = MoveState.MOVE;
 				}
@@ -143,20 +148,22 @@ public class MoveScript : MonoBehaviour
 			// 移動
 			case MoveState.MOVE:
 
-                if (_moveSpeed <= _moveMaxSpeed)
+				if (_moveSpeed <= _moveMaxSpeed)
                 {
                     _moveSpeed += _accelSpeed;
                 }
 
 				// 移動方向を計算
 				Vector3 moveVector = (_myTransform.forward * moveInput.x) + (_myTransform.right * moveInput.y);
-
+				
 				// 移動
 				_myTransform.position 
 					+= moveVector * _moveSpeed * Time.deltaTime;
 
 				// 移動方向を向く
-				LookForward(moveVector);
+				//LookForward(moveVector);
+
+				_beforePosition = _myTransform.position;
 
 				break;
         }
@@ -166,11 +173,11 @@ public class MoveScript : MonoBehaviour
 	/// 前を向く処理
 	/// </summary>
 	private void LookForward(Vector3 forward)
-    {
-		Quaternion forwardRotate 
-			= Quaternion.FromToRotation(_child.forward, forward) * _child.rotation;
-
+	{
+		Quaternion forwardRotation
+			= Quaternion.FromToRotation(_child.forward, forward) * _child.transform.rotation;
+		
 		// 回転を設定
-		_child.rotation = Quaternion.Slerp(_child.rotation, forwardRotate, _rotationSpeed * Time.deltaTime);
-    }
+		_child.rotation = Quaternion.Slerp(_child.rotation, forwardRotation, _rotationSpeed * Time.deltaTime);
+	}
 }

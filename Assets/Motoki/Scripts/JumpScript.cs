@@ -25,8 +25,8 @@ public class JumpScript : MonoBehaviour
 
 	#region フィールド変数
 
-	[SerializeField,Header("ジャンプ速度"),Range(0,1000)]
-	private float _jumpSpeed = default;
+	[SerializeField,Header("ジャンプ力"),Range(0,1000)]
+	private float _jumpPower = default;
 
 	[SerializeField,Header("ジャンプ時間"),Range(0,5)]
 	private float _jumpBaseTime = default;
@@ -115,7 +115,7 @@ public class JumpScript : MonoBehaviour
 				// 上方向に移動
 				_myTransform.position 
 					+= _myTransform.up * DemandJumpPower(_jumpTime,_jumpBaseTime) 
-					*  _jumpSpeed * Time.deltaTime;
+					*  _jumpPower * Time.deltaTime;
 
 				_jumpTime -= Time.deltaTime;
 
