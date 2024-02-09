@@ -36,17 +36,17 @@ public class MoveScript : MonoBehaviour
 	[SerializeField, Header("加速速度"), Range(0, 100)]
 	private float _accelSpeed = 0f;
 
-	//[SerializeField,Header("移動時間"),Range(0,10)]
-	//private float _moveBaseTime = 0f;
+	[SerializeField, Header("ブレーキ速度"), Range(0, 100)]
+	private float _brakeSpeed = 0f;
 
 	// 移動速度
 	private float _moveSpeed = 0f;
 
-	//// タイマー
-	//private float _moveTime = 0f;
-
 	// 自分のTransform
 	private Transform _myTransform = default;
+
+	// 進行方向
+	private Vector3 _moveVector = default; 
 
 	private Vector3 _beforePosition = default;
 
@@ -59,15 +59,9 @@ public class MoveScript : MonoBehaviour
 	// 入力クラス
 	private InputScript _inputScript = default;
 
-	// 重力クラス
-	private GravityScript _gravityScript = default;
-
 	// 移動状態
 	private MoveState _moveState = MoveState.MOVE;
 
-	/// STAY 待機
-	/// WALK 歩く
-	/// RUN 走る
 	/// <summary>
 	/// 移動状態
 	/// </summary>
@@ -98,9 +92,6 @@ public class MoveScript : MonoBehaviour
 
 		// InputScriptを取得
 		_inputScript = GetComponent<InputScript>();
-
-		// GravityScriptを取得
-		_gravityScript = GetComponent<GravityScript>();
 	}
 	
 	/// <summary>
@@ -119,65 +110,67 @@ public class MoveScript : MonoBehaviour
 		// 入力取得
 		Vector2 moveInput = _inputScript.InputMove();
 
-        // 入力されたら
-        if (0 == moveInput.x && 0 == moveInput.y)
-        {
-            _moveAnim.SetBool(RUN, false);
+		// 入力されたら
+		if (0 != moveInput.x || 0 != moveInput.y)
+		{
+			if (_moveSpeed <= _moveMaxSpeed)
+			{
+				// 加速
+				_moveSpeed += _accelSpeed * Time.deltaTime;
+			}
 
-			_moveState = MoveState.STAY;
+			// 移動方向を計算
+			_moveVector = (_myTransform.forward * moveInput.x) + (_myTransform.right * moveInput.y);
+
+			_moveAnim.SetBool(RUN, true);
+
+			float forwardAngle = Mathf.Atan2(moveInput.y, moveInput.x) * Mathf.Rad2Deg;
+
+			LookForward(forwardAngle);
+		}
+		// 入力されなかったら
+		else if (0 == moveInput.x && 0 == moveInput.y)
+		{
+			// 減速
+			_moveSpeed -= _brakeSpeed * Time.deltaTime;
+
+			if (_moveSpeed < 0.1f)
+			{
+				_moveSpeed = 0f;
+			}
+
+			_moveAnim.SetBool(RUN, false);
 		}
 
-        // 移動状態
-        switch (_moveState)
-        {
-            // 待機
-            case MoveState.STAY:
+		// 移動
+		_myTransform.position
+			+= _myTransform.forward * _moveSpeed * Time.deltaTime;
 
-				// 入力されたら
-				if(0 != moveInput.x || 0 != moveInput.y)
-                {
-					_moveSpeed = 0f;
-
-					_moveAnim.SetBool(RUN, true);
-
-					_moveState = MoveState.MOVE;
-				}
-
-                break;
-			
-			// 移動
-			case MoveState.MOVE:
-
-				if (_moveSpeed <= _moveMaxSpeed)
-                {
-                    _moveSpeed += _accelSpeed;
-                }
-
-				// 移動方向を計算
-				Vector3 moveVector = (_myTransform.forward * moveInput.x) + (_myTransform.right * moveInput.y);
-				
-				// 移動
-				_myTransform.position 
-					+= moveVector * _moveSpeed * Time.deltaTime;
-
-				// 移動方向を向く
-				//LookForward(moveVector);
-
-				_beforePosition = _myTransform.position;
-
-				break;
-        }
-    }
+		
+	}
 
 	/// <summary>
 	/// 前を向く処理
 	/// </summary>
-	private void LookForward(Vector3 forward)
+	private void LookForward(float forwardAngle)
 	{
-		Quaternion forwardRotation
-			= Quaternion.FromToRotation(_child.forward, forward) * _child.transform.rotation;
-		
-		// 回転を設定
-		_child.rotation = Quaternion.Slerp(_child.rotation, forwardRotation, _rotationSpeed * Time.deltaTime);
-	}
+		if (forwardAngle < 0)
+		{
+			forwardAngle += 360f;
+		}
+		//Debug.Log("Rotation" + forwardAngle);
+		//Debug.Log("myRotation" + _myTransform.localRotation.eulerAngles.y);
+
+		float angle = Vector3.Angle(_myTransform.forward, _moveVector);
+
+		Debug.Log(angle);
+		if ((forwardAngle + 20f < _myTransform.rotation.eulerAngles.y
+			&& _myTransform.rotation.eulerAngles.y <= 360f) 
+			|| (_myTransform.rotation.eulerAngles.y < forwardAngle - 20f) 
+			&& 0 <= _myTransform.rotation.eulerAngles.y)
+        {
+			//Debug.Log("回るよ");
+			_myTransform.Rotate(Vector3.up * _rotationSpeed * Time.deltaTime);
+		}
+    }
 }

@@ -26,13 +26,19 @@ public class JumpScript : MonoBehaviour
 	#region フィールド変数
 
 	[SerializeField,Header("ジャンプ力"),Range(0,1000)]
-	private float _jumpPower = default;
+	private float _jumpMaxPower = 0f;
 
 	[SerializeField,Header("ジャンプ時間"),Range(0,5)]
-	private float _jumpBaseTime = default;
+	private float _jumpBaseTime = 0f;
+
+
+
+	// 最大ジャンプ力
+	private float _jumpPower = 0f;
 
 	// タイマー
 	private float _jumpTime = 0f;
+
 
 	// タイマーの中間
 	private float _halfTime = 0f;
@@ -50,19 +56,25 @@ public class JumpScript : MonoBehaviour
 
 	private JumpState _jumpState = JumpState.START;
 
-	private enum JumpState
+	public enum JumpState
     {
 		START,
 		JUMP,
 		END
     }
 
-	#endregion
+    #endregion
 
-	/// <summary>
-	/// 更新前処理
-	/// </summary>
-	private void Start () 
+    #region 定数
+
+	public JumpState JumpType { get => _jumpState; set => _jumpState = value; }
+
+    #endregion
+
+    /// <summary>
+    /// 更新前処理
+    /// </summary>
+    private void Start () 
 	{
 		// 自分のTransformを設定
 		_myTransform = transform;
@@ -97,12 +109,14 @@ public class JumpScript : MonoBehaviour
 
 				// 入力判定
 				// 着地判定
-				if (_inputScript.IsJump()
+				if (_inputScript.IsJumpButtonDown()
 					&& _gravityScript.IsGround())
                 {
 					_jumpState = JumpState.JUMP;
 
 					_playerAnimator.SetBool(JUMP, true);
+
+					_jumpPower = 0f;
 
 					// タイマーの初期化
 					_jumpTime = _jumpBaseTime;
@@ -111,11 +125,12 @@ public class JumpScript : MonoBehaviour
 
 			// ジャンプ状態
             case JumpState.JUMP:
-			
+
+				_jumpPower = DemandJumpPower(_jumpPower,_jumpMaxPower,_jumpTime,_jumpBaseTime);
+
 				// 上方向に移動
 				_myTransform.position 
-					+= _myTransform.up * DemandJumpPower(_jumpTime,_jumpBaseTime) 
-					*  _jumpPower * Time.deltaTime;
+					+= _myTransform.up * _jumpPower * Time.deltaTime;
 
 				_jumpTime -= Time.deltaTime;
 
@@ -146,19 +161,28 @@ public class JumpScript : MonoBehaviour
 	/// <param name="time">経過時間</param>
 	/// <param name="baseTime">設定時間</param>
 	/// <returns>ジャンプの強さ</returns>
-	private float DemandJumpPower(float time,float baseTime)
+	private float DemandJumpPower(float jumpPower,float jumpMaxPower,float time,float baseTime)
     {
-		float jumpPower = 0f;
-		
-		if(_halfTime < _jumpTime)
+
+        if(_halfTime < _jumpTime)
         {
-			jumpPower = time;
+			jumpPower += (jumpMaxPower / baseTime) * Time.deltaTime;
         }
 		else if (_jumpTime <= _halfTime)
 		{
-			jumpPower = time / baseTime;
+			jumpPower -= (jumpMaxPower / baseTime) * Time.deltaTime;
 		}
 
+
+		if(jumpMaxPower < jumpPower)
+        {
+			jumpPower = jumpMaxPower;
+        }
+		else if(jumpPower < 0f)
+        {
+			jumpPower = 0f;
+        }
+		Debug.Log(jumpPower);
 		return jumpPower;
 	}
 }

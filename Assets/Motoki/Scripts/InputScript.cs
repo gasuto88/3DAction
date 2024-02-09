@@ -109,12 +109,25 @@ public class InputScript : MonoBehaviour
     }
 
     /// <summary>
-    /// ジャンプの入力判定処理
+    /// ジャンプボタンを押した判定
     /// </summary>
     /// <returns>入力判定</returns>
-	public bool IsJump()
+	public bool IsJumpButtonDown()
     {
-        if (Input.GetKey(KeyCode.Space) || Input.GetButton(JUMP))
+        if (Input.GetButtonDown(JUMP))
+        {
+            return true;
+        }
+        return false;
+    }
+
+    /// <summary>
+    /// ジャンプボタンを離した判定
+    /// </summary>
+    /// <returns>入力判定</returns>
+    public bool IsJumpButtonUp()
+    {
+        if (Input.GetButtonUp(JUMP))
         {
             return true;
         }

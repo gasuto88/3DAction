@@ -26,10 +26,15 @@ public class GravityScript : MonoBehaviour
 	#region フィールド変数
 
 	[SerializeField,Header("重力の強さ"),Range(0,100)]
-	private float _gravityPower = 0f;
+	private float _gravityMaxPower = 0f;
+
+	[SerializeField, Header("重力が最大になるまでの速度"), Range(0, 100)]
+	private float _gravityMaxSpeed = 0f;
 
 	[SerializeField, Header("足元の座標")]
 	private Transform _legTransform = default;
+
+	private float _gravityPower = 0f;
 
 	// 自分のTransform
 	private Transform _myTransform = default;
@@ -39,6 +44,9 @@ public class GravityScript : MonoBehaviour
 
 	// 惑星の半径
 	private float _planetRadius = default;
+
+	// ジャンプクラス
+	private JumpScript _jumpScript = default;
 
     #endregion
 
@@ -61,6 +69,8 @@ public class GravityScript : MonoBehaviour
 
 		// 惑星の半径
 		_planetRadius = _planet.localScale.x / HALF;
+
+		_jumpScript = GetComponent<JumpScript>();
 	}
 
 	/// <summary>
@@ -69,10 +79,15 @@ public class GravityScript : MonoBehaviour
     private void Update()
     {		
 		// 着地判定
-		if (!IsGround())
+		if (!IsGround() 
+			&& _jumpScript.JumpType != JumpScript.JumpState.JUMP)
 		{
 			Gravity();
 		}
+        else
+        {
+			_gravityPower = 0f;
+        }
 
 		RotateGravity();
 	}
@@ -84,6 +99,8 @@ public class GravityScript : MonoBehaviour
     {
 		// 惑星の方向を設定
 		Vector3 direction = _planet.position - _myTransform.position;
+
+		_gravityPower = UpGravityPower(_gravityPower,_gravityMaxPower,_gravityMaxSpeed);
 
 		// 重力
 		_myTransform.position += direction * _gravityPower * Time.deltaTime;
@@ -140,5 +157,17 @@ public class GravityScript : MonoBehaviour
 		float distance = Mathf.Sqrt(radiusSquare);
 
 		return distance;
+    }
+
+	private float UpGravityPower(float power,float MaxPower,float Speed)
+    {
+		if(power <= MaxPower)
+        {
+			power += Speed * Time.deltaTime;
+		}
+		
+
+
+		return power;
     }
 }

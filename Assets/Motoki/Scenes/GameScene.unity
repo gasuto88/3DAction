@@ -1064,7 +1064,7 @@ Animator:
   m_Enabled: 1
   m_Avatar: {fileID: 9000000, guid: 02dd6406ed1ebc248b2fafd0485e0de9, type: 3}
   m_Controller: {fileID: 9100000, guid: eda8053260c35ef40ae759a7bb8daafe, type: 2}
-  m_CullingMode: 1
+  m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 1
   m_LinearVelocityBlending: 0
@@ -1086,7 +1086,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 236d72ff392388e4ebf922f16740d3ed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _gravityPower: 0.5
+  _gravityMaxPower: 0.4
+  _gravityMaxSpeed: 1
   _legTransform: {fileID: 96545799}
 --- !u!114 &48546760
 MonoBehaviour:
@@ -1100,8 +1101,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3fcd4736a87656546b506cbec9b00ab7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _jumpPower: 20
-  _jumpBaseTime: 0.8
+  _jumpMaxPower: 40
+  _jumpBaseTime: 0.5
 --- !u!114 &48546761
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1114,9 +1115,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 88f249d0f53200944889e76885bd459a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _moveMaxSpeed: 10
-  _rotationSpeed: 5
-  _accelSpeed: 3
+  _moveMaxSpeed: 15
+  _rotationSpeed: 50
+  _accelSpeed: 10
+  _brakeSpeed: 30
 --- !u!114 &48546762
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1175,7 +1177,7 @@ GameObject:
   - component: {fileID: 201428264}
   m_Layer: 7
   m_Name: Planet
-  m_TagString: Untagged
+  m_TagString: Planet
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1479,7 +1481,7 @@ GameObject:
   - component: {fileID: 1283395573}
   m_Layer: 7
   m_Name: Planet (1)
-  m_TagString: Planet
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1564,7 +1566,7 @@ Transform:
   m_GameObject: {fileID: 1283395572}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 73.6, z: -5}
+  m_LocalPosition: {x: 14.2, y: 87.5, z: -37}
   m_LocalScale: {x: 10, y: 10, z: 10}
   m_ConstrainProportionsScale: 0
   m_Children: []
