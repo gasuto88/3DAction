@@ -163,7 +163,6 @@ public class JumpScript : MonoBehaviour
 	/// <returns>ジャンプの強さ</returns>
 	private float DemandJumpPower(float jumpPower,float jumpMaxPower,float time,float baseTime)
     {
-
         if(_halfTime < _jumpTime)
         {
 			jumpPower += (jumpMaxPower / baseTime) * Time.deltaTime;
@@ -173,7 +172,6 @@ public class JumpScript : MonoBehaviour
 			jumpPower -= (jumpMaxPower / baseTime) * Time.deltaTime;
 		}
 
-
 		if(jumpMaxPower < jumpPower)
         {
 			jumpPower = jumpMaxPower;
@@ -182,7 +180,6 @@ public class JumpScript : MonoBehaviour
         {
 			jumpPower = 0f;
         }
-		Debug.Log(jumpPower);
 		return jumpPower;
 	}
 }

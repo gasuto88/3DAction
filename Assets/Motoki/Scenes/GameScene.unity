@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.17316318, g: 0.16457182, b: 0.29665613, a: 1}
+  m_IndirectSpecularColor: {r: 0.17448023, g: 0.16647401, b: 0.29710802, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -1086,8 +1086,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 236d72ff392388e4ebf922f16740d3ed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _gravityMaxPower: 0.4
-  _gravityMaxSpeed: 1
+  _gravityMaxPower: 0.5
+  _gravityMaxSpeed: 0.6
   _legTransform: {fileID: 96545799}
 --- !u!114 &48546760
 MonoBehaviour:
@@ -1101,8 +1101,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3fcd4736a87656546b506cbec9b00ab7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _jumpMaxPower: 40
-  _jumpBaseTime: 0.5
+  _jumpMaxPower: 25
+  _jumpBaseTime: 0.6
 --- !u!114 &48546761
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1116,7 +1116,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _moveMaxSpeed: 15
-  _rotationSpeed: 50
+  _rotationSpeed: 100
   _accelSpeed: 10
   _brakeSpeed: 30
 --- !u!114 &48546762

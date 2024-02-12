@@ -30,7 +30,7 @@ public class MoveScript : MonoBehaviour
     [SerializeField,Header("移動速度"),Range(0,100)]
 	private float _moveMaxSpeed = 0f;
 
-	[SerializeField,Header("振り向き速度"),Range(0,100)]
+	[SerializeField,Header("振り向き速度"),Range(0,500)]
 	private float _rotationSpeed = 0f;
 
 	[SerializeField, Header("加速速度"), Range(0, 100)]
@@ -109,7 +109,7 @@ public class MoveScript : MonoBehaviour
     {
 		// 入力取得
 		Vector2 moveInput = _inputScript.InputMove();
-
+		
 		// 入力されたら
 		if (0 != moveInput.x || 0 != moveInput.y)
 		{
@@ -120,13 +120,13 @@ public class MoveScript : MonoBehaviour
 			}
 
 			// 移動方向を計算
-			_moveVector = (_myTransform.forward * moveInput.x) + (_myTransform.right * moveInput.y);
+			_moveVector = ((_myTransform.forward * moveInput.x) + (_myTransform.right * moveInput.y)).normalized;
+
+			
+
+			LookForward(_moveVector);
 
 			_moveAnim.SetBool(RUN, true);
-
-			float forwardAngle = Mathf.Atan2(moveInput.y, moveInput.x) * Mathf.Rad2Deg;
-
-			LookForward(forwardAngle);
 		}
 		// 入力されなかったら
 		else if (0 == moveInput.x && 0 == moveInput.y)
@@ -142,9 +142,11 @@ public class MoveScript : MonoBehaviour
 			_moveAnim.SetBool(RUN, false);
 		}
 
+		
+
 		// 移動
 		_myTransform.position
-			+= _myTransform.forward * _moveSpeed * Time.deltaTime;
+			+= _moveVector * _moveSpeed * Time.deltaTime;
 
 		
 	}
@@ -152,25 +154,33 @@ public class MoveScript : MonoBehaviour
 	/// <summary>
 	/// 前を向く処理
 	/// </summary>
-	private void LookForward(float forwardAngle)
+	private void LookForward(Vector3 forward)
 	{
-		if (forwardAngle < 0)
-		{
-			forwardAngle += 360f;
-		}
-		//Debug.Log("Rotation" + forwardAngle);
-		//Debug.Log("myRotation" + _myTransform.localRotation.eulerAngles.y);
+		Debug.Log(forward);
+		Quaternion forwardRotate = Quaternion.LookRotation(forward);
 
-		float angle = Vector3.Angle(_myTransform.forward, _moveVector);
+		_child.rotation = forwardRotate;//Quaternion.RotateTowards(_child.rotation, forwardRatate, _rotationSpeed * Time.deltaTime);
+		//Quaternion forwardRotate 
+		//	= Quaternion.FromToRotation(_child.forward, forward.normalized) * _child.rotation;
 
-		Debug.Log(angle);
-		if ((forwardAngle + 20f < _myTransform.rotation.eulerAngles.y
-			&& _myTransform.rotation.eulerAngles.y <= 360f) 
-			|| (_myTransform.rotation.eulerAngles.y < forwardAngle - 20f) 
-			&& 0 <= _myTransform.rotation.eulerAngles.y)
-        {
-			//Debug.Log("回るよ");
-			_myTransform.Rotate(Vector3.up * _rotationSpeed * Time.deltaTime);
-		}
+		//_child.rotation = Quaternion.Slerp(_child.rotation,forwardRotate,_rotationSpeed * Time.deltaTime);
+		//if (forwardAngle < 0)
+		//{
+		//	forwardAngle += 360f;
+		//}
+		////Debug.Log("Rotation" + forwardAngle);
+		////Debug.Log("myRotation" + _myTransform.localRotation.eulerAngles.y);
+
+		//float angle = Vector3.Angle(_myTransform.forward, _moveVector);
+
+		//Debug.Log(angle);
+		//if ((forwardAngle + 20f < _myTransform.rotation.eulerAngles.y
+		//	&& _myTransform.rotation.eulerAngles.y <= 360f) 
+		//	|| (_myTransform.rotation.eulerAngles.y < forwardAngle - 20f) 
+		//	&& 0 <= _myTransform.rotation.eulerAngles.y)
+  //      {
+		//	//Debug.Log("回るよ");
+		//	_myTransform.Rotate(Vector3.up * _rotationSpeed * Time.deltaTime);
+		//}
     }
 }
