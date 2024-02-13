@@ -90,17 +90,9 @@ public class JumpScript : MonoBehaviour
 	}
 	
 	/// <summary>
-    /// 更新処理
-    /// </summary>
-	private void Update () 
-	{
-		Jump();
-	}
-
-	/// <summary>
 	/// ジャンプ処理
 	/// </summary>
-	private void Jump()
+	public void Jump()
     {
         switch (_jumpState)
         {

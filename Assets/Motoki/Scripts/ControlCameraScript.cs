@@ -24,6 +24,10 @@ public class ControlCameraScript : MonoBehaviour
 
 	private Vector3 _offset = default;
 
+	private GravityScript _gravityScript = default;
+
+	private MoveScript _moveScript = default;
+
 	#endregion
 
 	/// <summary>
@@ -36,28 +40,22 @@ public class ControlCameraScript : MonoBehaviour
 
 		_player = GameObject.FindGameObjectWithTag("Player").transform;
 
-		_offset = _myTransform.position - _player.position;
-	}
-	
-	/// <summary>
-    /// 更新処理
-    /// </summary>
-	private void Update () 
-	{
-		CameraControl();
+		_moveScript = _player.GetComponent<MoveScript>();
+
+		_gravityScript = _player.GetComponent<GravityScript>();
+
+		_offset = _myTransform.position - _player.position;		
 	}
 
 	/// <summary>
 	/// カメラを制御する処理
 	/// </summary>
-	private void CameraControl()
+	public void ControlCamera()
     {
-		//_offset = _player.position - _myTransform.position;
-		Vector3 cameraPosition = _player.position + _offset;
+		Vector3 cameraPosition = _player.position;
+		
+		_myTransform.position = cameraPosition + _offset;
 
-		// 座標を設定
-		_myTransform.position = cameraPosition;
 
-		_myTransform.LookAt(_player);
     }
 }

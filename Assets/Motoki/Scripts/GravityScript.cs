@@ -48,11 +48,21 @@ public class GravityScript : MonoBehaviour
 	// ジャンプクラス
 	private JumpScript _jumpScript = default;
 
-    #endregion
+	// 重力方向
+	private Vector3 _gravityDirection = default;
 
-    #region 定数
+	// 惑星
+	private Transform[] _planets = default;
+
+	#endregion
+
+	#region プロパティ
 
 	public float GravityPower { get => _gravityPower; set => _gravityPower = value; }
+
+	public Vector3 GravityDirection { get => _gravityDirection; set => _gravityDirection = value; }
+
+	public Transform Planet { get => _planet; set => _planet = value; }
 
     #endregion
 
@@ -71,55 +81,64 @@ public class GravityScript : MonoBehaviour
 		_planetRadius = _planet.localScale.x / HALF;
 
 		_jumpScript = GetComponent<JumpScript>();
-	}
 
-	/// <summary>
-	/// 更新処理
-	/// </summary>
-    private void Update()
-    {		
-		// 着地判定
-		if (!IsGround() 
-			&& _jumpScript.JumpType != JumpScript.JumpState.JUMP)
+		_planets = new Transform[_planet.childCount];
+
+		for (int i = 0; i < _planet.childCount; i++)
 		{
-			Gravity();
+			_planets[i] = _planet.GetChild(i);
 		}
-        else
-        {
-			_gravityPower = 0f;
-        }
-
-		RotateGravity();
 	}
 
 	/// <summary>
 	/// 重力処理
 	/// </summary>
-    private void Gravity()
+    public void Gravity()
     {
-		// 惑星の方向を設定
-		Vector3 direction = _planet.position - _myTransform.position;
+		// 着地判定
+		if (!IsGround()
+			&& _jumpScript.JumpType != JumpScript.JumpState.JUMP)
+		{
+			// 惑星の方向を設定
+			_gravityDirection = _planet.position - _myTransform.position;
 
-		_gravityPower = UpGravityPower(_gravityPower,_gravityMaxPower,_gravityMaxSpeed);
+			_gravityPower = UpGravityPower(_gravityPower, _gravityMaxPower, _gravityMaxSpeed);
 
-		// 重力
-		_myTransform.position += direction * _gravityPower * Time.deltaTime;
+			// 重力
+			_myTransform.position += _gravityDirection * _gravityPower * Time.deltaTime;
+		}
+		else
+		{
+			_gravityPower = 0f;
+		}	
 	}
 
 	/// <summary>
 	/// 重力回転処理
 	/// </summary>
-	private void RotateGravity()
+	public void RotateGravity()
     {
 		// 惑星の方向を設定
-		Vector3 direction = _planet.position - _myTransform.position;
-		
-		// 重力の角度を設定
-		Quaternion gravityRotation 
-			= Quaternion.FromToRotation(-_myTransform.up, direction) * _myTransform.rotation;
+		_gravityDirection = _planet.position - _myTransform.position;
 
-		// 角度を設定
-		_myTransform.rotation = gravityRotation;
+        // 重力の角度を設定
+        Quaternion gravityRotation
+            = Quaternion.FromToRotation(-_myTransform.up, _gravityDirection) * _myTransform.rotation;
+
+        // 角度を設定
+        _myTransform.rotation = gravityRotation;
+    }
+
+	public void SelectPlanet()
+	{
+		//foreach (Transform planet in _planets)
+		//{
+		//	float distance = DistanceToPlanet(planet.position, _moveScript.MyTransform.position);
+		//	//if (distance)
+		//	//{
+
+		//	//}
+		//}
 	}
 
 	/// <summary>
@@ -144,7 +163,7 @@ public class GravityScript : MonoBehaviour
 	/// <param name="planet">惑星の中心座標</param>
 	/// <param name="myPoint">自分の座標</param>
 	/// <returns>距離</returns>
-	private float DistanceToPlanet(Vector3 planet,Vector3 myPoint)
+	public float DistanceToPlanet(Vector3 planet,Vector3 myPoint)
     {
 		// 2乗計算
 		float squareA = (myPoint.x - planet.x) * (myPoint.x - planet.x);
@@ -166,8 +185,6 @@ public class GravityScript : MonoBehaviour
 			power += Speed * Time.deltaTime;
 		}
 		
-
-
 		return power;
     }
 }
