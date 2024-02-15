@@ -49,8 +49,8 @@ public class JumpScript : MonoBehaviour
 	// 入力クラス
 	private InputScript _inputScript = default;
 
-	// 重力クラス
-	private GravityScript _gravityScript = default;
+	// プレイヤーを制御するクラス
+	private ControlPlayerScript _controlPlayerScript = default;
 
 	private Animator _playerAnimator = default;
 
@@ -81,7 +81,7 @@ public class JumpScript : MonoBehaviour
 
 		// Scriptを取得
 		_inputScript = GetComponent<InputScript>();
-		_gravityScript = GetComponent<GravityScript>();
+		_controlPlayerScript = GetComponent<ControlPlayerScript>();
 
 		// タイマーの中間を設定
 		_halfTime = _jumpBaseTime / HALF;
@@ -102,7 +102,7 @@ public class JumpScript : MonoBehaviour
 				// 入力判定
 				// 着地判定
 				if (_inputScript.IsJumpButtonDown()
-					&& _gravityScript.IsGround())
+					&& _controlPlayerScript.IsGround())
                 {
 					_jumpState = JumpState.JUMP;
 

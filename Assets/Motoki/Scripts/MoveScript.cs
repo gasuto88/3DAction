@@ -114,7 +114,8 @@ public class MoveScript : MonoBehaviour
 		_inputScript = GetComponent<InputScript>();
 
 		// GravityScriptを取得
-		_gravityScript = GetComponent<GravityScript>();
+		_gravityScript
+			= GameObject.FindGameObjectWithTag("Planet").GetComponent<GravityScript>();
 
 		_noInputTime = _noInputMaxTime;
 	}

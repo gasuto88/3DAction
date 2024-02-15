@@ -42,7 +42,8 @@ public class ControlCameraScript : MonoBehaviour
 
 		_moveScript = _player.GetComponent<MoveScript>();
 
-		_gravityScript = _player.GetComponent<GravityScript>();
+		_gravityScript
+			= GameObject.FindGameObjectWithTag("Planet").GetComponent<GravityScript>();
 
 		_offset = _myTransform.position - _player.position;		
 	}

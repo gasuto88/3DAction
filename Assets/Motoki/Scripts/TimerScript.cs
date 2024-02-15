@@ -10,20 +10,19 @@ using UnityEngine;
 
 public class TimerScript
 {
-
-	#region フィールド変数
-
 	/// <summary>
 	/// 初期化処理
 	/// </summary>
 	/// <param name="time">計測時間</param>
 	/// <param name="timerState">タイマーの状態</param>
-	public TimerScript(float time ,TimerState timerState)
-    {
+	public TimerScript(float time, TimerState timerState)
+	{
 		this._time = time;
 		this._baseTime = time;
 		this._timerState = timerState;
-    }
+	}
+
+	#region フィールド変数
 
 	// タイマーの経過時間
 	private float _time = 0f;
