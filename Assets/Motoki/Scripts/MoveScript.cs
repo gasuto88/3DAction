@@ -71,6 +71,9 @@ public class MoveScript : MonoBehaviour
 	// 重力クラス
 	private GravityScript _gravityScript = default;
 
+
+	private ControlCameraScript _controlCameraScript = default;
+
 	// 移動状態
 	private MoveState _moveState = MoveState.MOVE;
 
@@ -116,6 +119,9 @@ public class MoveScript : MonoBehaviour
 		// GravityScriptを取得
 		_gravityScript
 			= GameObject.FindGameObjectWithTag("Planet").GetComponent<GravityScript>();
+
+		_controlCameraScript 
+			= GameObject.FindGameObjectWithTag("MainCamera").GetComponent<ControlCameraScript>();
 
 		_noInputTime = _noInputMaxTime;
 	}

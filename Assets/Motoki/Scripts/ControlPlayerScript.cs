@@ -76,7 +76,7 @@ public class ControlPlayerScript : MonoBehaviour
         float distance 
             = _gravityScript.DistanceToPlanet(_gravityScript.Planet.position, _legTransform.position);
 
-        if (distance < _gravityScript.PlanetRadius)
+        if (distance <= _gravityScript.PlanetRadius + 0.1f)
         {
             return true;
         }

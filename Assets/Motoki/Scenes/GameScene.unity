@@ -265,6 +265,7 @@ Transform:
   - {fileID: 41036850}
   - {fileID: 41036812}
   - {fileID: 41036808}
+  - {fileID: 435906498}
   - {fileID: 96545799}
   m_Father: {fileID: 41036840}
   m_LocalEulerAnglesHint: {x: -1.607, y: 0, z: -0.18}
@@ -1065,8 +1066,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3fcd4736a87656546b506cbec9b00ab7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _jumpMaxPower: 25
-  _jumpBaseTime: 0.5
+  _jumpMaxPower: 30
+  _jumpBaseTime: 0.6
 --- !u!114 &48546761
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1079,8 +1080,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 88f249d0f53200944889e76885bd459a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _moveMaxSpeed: 15
-  _rotationSpeed: 5
+  _moveMaxSpeed: 10
+  _rotationSpeed: 10
   _accelSpeed: 10
   _brakeSpeed: 40
   _noInputMaxTime: 0.05
@@ -1202,7 +1203,7 @@ Transform:
   m_GameObject: {fileID: 96545798}
   serializedVersion: 2
   m_LocalRotation: {x: 7.2759567e-12, y: -2.2134825e-10, z: 0.9999619, w: -0.008726465}
-  m_LocalPosition: {x: 0, y: -0.00154, z: -0.00004}
+  m_LocalPosition: {x: 0, y: -0.00154, z: 0}
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1313,6 +1314,37 @@ Transform:
   m_Children: []
   m_Father: {fileID: 745498807}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &435906497
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 435906498}
+  m_Layer: 0
+  m_Name: HeadPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &435906498
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 435906497}
+  serializedVersion: 2
+  m_LocalRotation: {x: 7.2759567e-12, y: -2.2134825e-10, z: 0.9999619, w: -0.008726465}
+  m_LocalPosition: {x: 0, y: 0.004, z: 0}
+  m_LocalScale: {x: 0, y: 0, z: 0}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 41036818}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 181}
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0
@@ -1456,9 +1488,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _gravityMaxPower: 5
   _gravityMaxSpeed: 2
-  _gravityRotationSpeed: 50
-  _gravityScope: 20
-  _gravityChangeTime: 0
+  _gravityRotationSpeed: 100
+  _gravityChangeRotaionSpeed: 2
+  _gravityScope: 3
+  _gravityChangeTime: 1
 --- !u!1 &963194225
 GameObject:
   m_ObjectHideFlags: 0
@@ -1564,6 +1597,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 03482d5caa7a8304b828299a8ac9187b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _cameraRotationSpeed: 20
+  _cameraTurningSpeed: 200
+  _headTransform: {fileID: 435906498}
+  _legTransform: {fileID: 96545799}
 --- !u!1 &1283395572
 GameObject:
   m_ObjectHideFlags: 0

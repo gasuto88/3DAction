@@ -14,7 +14,25 @@ using UnityEngine;
 public class ControlCameraScript : MonoBehaviour 
 {
 
-	#region フィールド変数
+	#region 定数
+
+	private const string PLANET = "Planet";
+
+    #endregion
+
+    #region フィールド変数
+
+    [SerializeField,Header("カメラの回転速度"),Range(0,200)]
+	private float _cameraRotationSpeed = 0f;
+
+	[SerializeField, Header("カメラの旋回速度"), Range(0, 200)]
+	private float _cameraTurningSpeed = 0f;
+
+	[SerializeField,Header("プレイヤーの頭の座標")]
+	private Transform _headTransform = default;
+
+	[SerializeField, Header("プレイヤーの足の座標")]
+	private Transform _legTransform = default;
 
 	// 自分のTransform
 	private Transform _myTransform = default;
@@ -24,16 +42,26 @@ public class ControlCameraScript : MonoBehaviour
 
 	private Vector3 _offset = default;
 
+	private Vector3 _cameraPosition = default;
+
+	private bool isTurning = false;
+
 	private GravityScript _gravityScript = default;
 
 	private MoveScript _moveScript = default;
 
-	#endregion
+    #endregion
 
-	/// <summary>
+    #region プロパティ
+
+	public Transform CameraTransform { get => _myTransform; set => _myTransform = value;}
+
+    #endregion
+
+    /// <summary>
     /// 更新前処理
     /// </summary>
-	private void Start () 
+    private void Start () 
 	{
 		// 自分のTransformを設定
 		_myTransform = transform;
@@ -45,18 +73,62 @@ public class ControlCameraScript : MonoBehaviour
 		_gravityScript
 			= GameObject.FindGameObjectWithTag("Planet").GetComponent<GravityScript>();
 
-		_offset = _myTransform.position - _player.position;		
+		_offset = _myTransform.position - _player.position;
+
+		_cameraPosition = _player.position + _offset;
+
+		_myTransform.position = _cameraPosition;
 	}
 
 	/// <summary>
 	/// カメラを制御する処理
 	/// </summary>
 	public void ControlCamera()
-    {
-		Vector3 cameraPosition = _player.position;
+    {		
 		
-		_myTransform.position = cameraPosition + _offset;
 
+		//Vector3 targetDirection = _myTransform.position - _player.position;
 
+		_cameraPosition = _player.position + _offset;
+
+		if (IsCollisionObject())
+        {
+			isTurning = true;
+        }
+
+        if (isTurning)
+        {
+			
+		}
+
+		_myTransform.position = _cameraPosition;
+
+		//Quaternion cameraRotation 
+		//	= Quaternion.LookRotation(targetDirection,-_gravityScript.GravityDirection);
+
+		//_myTransform.rotation
+		//	= Quaternion.Slerp(_myTransform.rotation, cameraRotation, _cameraRotationSpeed * Time.deltaTime);
+    }
+
+	/// <summary>
+	/// 障害物判定
+	/// </summary>
+	/// <returns></returns>
+	private bool IsCollisionObject()
+    {
+		Vector3 headDirction = _headTransform.position - _myTransform.position;
+		Vector3 legDirection = _legTransform.position - _myTransform.position;
+
+		float rayDistance = 5f;
+
+		if (Physics.Raycast
+			(_myTransform.position,headDirction,rayDistance,LayerMask.GetMask(PLANET))
+			|| Physics.Raycast
+			(_myTransform.position, legDirection, rayDistance, LayerMask.GetMask(PLANET)))
+        {
+			return true;
+        }
+
+		return false;
     }
 }

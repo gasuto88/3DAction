@@ -34,6 +34,9 @@ public class GravityScript : MonoBehaviour
     [SerializeField, Header("重力回転速度"), Range(0, 100)]
     private float _gravityRotationSpeed = 0f;
 
+    [SerializeField, Header("重力変更時の回転速度"), Range(0, 100)]
+    private float _gravityChangeRotaionSpeed = 0f;
+
     [SerializeField, Header("重力を受ける範囲"), Range(0, 1000)]
     private float _gravityScope = 0f;
 
@@ -41,6 +44,10 @@ public class GravityScript : MonoBehaviour
     private float _gravityChangeTime = 0f;
 
     private float _gravityPower = 0f;
+
+    private int _gravityNumber = 0;
+
+    private float _rotationSpeedTemp = 0f;
 
     // 自分のTransform
     private Transform _myTransform = default;
@@ -58,7 +65,7 @@ public class GravityScript : MonoBehaviour
     private float _planetRadius = 0f;
 
     // 惑星までの距離
-    private float _nearPlanetDistance = 10000f;
+    //private float _nearPlanetDistance = 10000f;
 
     // ジャンプクラス
     private JumpScript _jumpScript = default;
@@ -125,6 +132,8 @@ public class GravityScript : MonoBehaviour
         }
 
         _timerScript = new TimerScript(_gravityChangeTime,TimerScript.TimerState.END);
+
+        _rotationSpeedTemp = _gravityRotationSpeed;
     }
 
     /// <summary>
@@ -174,35 +183,40 @@ public class GravityScript : MonoBehaviour
     /// </summary>
     public void SetNearPlanet()
     {
-        int gravityNumber = 0;
-        //if (_timerScript.Execute() == TimerScript.TimerState.END)
-        //{
+        if (_timerScript.Execute() == TimerScript.TimerState.END)
+        {
+            float nearPlanetDistance = 100000f;
+
+            _gravityRotationSpeed = _rotationSpeedTemp;
+
             for (int i = 0; i < _planetCount; i++)
             {
                 // 距離を計算
                 float distance = DistanceToPlanet(_planets[i].position, _moveScript.MyTransform.position);
-
-                if (_planet != _planets[i]
-                    && distance - _planetRadiuses[i] < _nearPlanetDistance)
+                
+                if (distance  < _gravityScope + _planetRadiuses[i])
                 {
                     // 惑星までの距離を設定
-                    _nearPlanetDistance = distance - _planetRadiuses[i];
+                    nearPlanetDistance = distance - _planetRadiuses[i];
+                    Debug.Log(nearPlanetDistance + " " + _gravityNumber);
 
-                    gravityNumber = i;
+                    _gravityNumber = i;
                 }
             }
 
-            if (_planet != _planets[gravityNumber])
+            if (_planet != _planets[_gravityNumber])
             {
                 // 惑星を設定
-                _planet = _planets[gravityNumber];
+                _planet = _planets[_gravityNumber];
                 
                 // 惑星の半径を設定
-                _planetRadius = _planetRadiuses[gravityNumber];
+                _planetRadius = _planetRadiuses[_gravityNumber];
 
                 _timerScript.TimerReset();
+
+                _gravityRotationSpeed = _gravityChangeRotaionSpeed;
             }
-        //}
+        }
     }
 
     /// <summary>
