@@ -114,6 +114,7 @@ public class GravityScript : MonoBehaviour
         _moveScript = player.GetComponent<MoveScript>();
         _controlPlayerScript = player.GetComponent<ControlPlayerScript>();
 
+        _gravityDirection = Vector3.down;
         // 惑星の数を設定
         _planetCount = _myTransform.childCount;
         _planets = new Transform[_planetCount];
@@ -130,6 +131,8 @@ public class GravityScript : MonoBehaviour
             // 惑星の半径を設定
             _planetRadiuses[k] = _planets[k].localScale.x / HALF;
         }
+
+        _planet = GameObject.FindGameObjectWithTag("Planet").transform;
 
         _timerScript = new TimerScript(_gravityChangeTime,TimerScript.TimerState.END);
 
@@ -193,12 +196,11 @@ public class GravityScript : MonoBehaviour
             {
                 // 距離を計算
                 float distance = DistanceToPlanet(_planets[i].position, _moveScript.MyTransform.position);
-                
-                if (distance  < _gravityScope + _planetRadiuses[i])
+
+                if (distance < _gravityScope + _planetRadiuses[i])
                 {
                     // 惑星までの距離を設定
                     nearPlanetDistance = distance - _planetRadiuses[i];
-                    Debug.Log(nearPlanetDistance + " " + _gravityNumber);
 
                     _gravityNumber = i;
                 }
@@ -208,7 +210,7 @@ public class GravityScript : MonoBehaviour
             {
                 // 惑星を設定
                 _planet = _planets[_gravityNumber];
-                
+
                 // 惑星の半径を設定
                 _planetRadius = _planetRadiuses[_gravityNumber];
 

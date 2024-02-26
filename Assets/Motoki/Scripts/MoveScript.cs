@@ -55,7 +55,7 @@ public class MoveScript : MonoBehaviour
 	private Transform _myTransform = default;
 
 	// 進行方向
-	private Vector3 _moveVector = default; 
+	private Vector3 _moveVector = default;
 
 	private Vector3 _beforePosition = default;
 
@@ -144,7 +144,7 @@ public class MoveScript : MonoBehaviour
 			}
 
 			// 移動方向を計算
-			_moveVector = ((_myTransform.forward * moveInput.x) + (_myTransform.right * moveInput.y)).normalized;	
+			_moveVector = ((_myTransform.forward * moveInput.x) + (_myTransform.right * moveInput.y));	
 
 			_moveAnim.SetBool(RUN, true);
 		}
@@ -182,7 +182,7 @@ public class MoveScript : MonoBehaviour
         {
             Quaternion forwardRotate = Quaternion.LookRotation(_moveVector, -_gravityScript.GravityDirection);
 
-            _child.rotation = Quaternion.Slerp(_child.rotation, forwardRotate, _rotationSpeed * Time.deltaTime);
+			_child.rotation = Quaternion.Slerp(_child.rotation, forwardRotate, _rotationSpeed * Time.deltaTime);
         }
     }
 
