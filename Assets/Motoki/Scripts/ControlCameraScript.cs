@@ -85,16 +85,18 @@ public class ControlCameraScript : MonoBehaviour
 	/// </summary>
 	public void ControlCamera()
     {
-		// プレーやの方向取得
-		Vector3 targetDirection = _player.position - _myTransform.position;
+		//// プレーやの方向取得
+		//Vector3 targetDirection = _player.position - _myTransform.position;
 
-		// プレイヤーの方向を向く
-        Quaternion cameraRotation
-            = Quaternion.LookRotation(targetDirection);
+		//// プレイヤーの方向を向く
+		//      Quaternion cameraRotation
+		//          = Quaternion.LookRotation(targetDirection);
 
-		// プレイヤーの方向をなめらかに向く
-        _myTransform.rotation
-            = Quaternion.Slerp(_myTransform.rotation, cameraRotation, _cameraRotationSpeed * Time.deltaTime);
+		//// プレイヤーの方向をなめらかに向く
+		//      _myTransform.rotation
+		//          = Quaternion.Slerp(_myTransform.rotation, cameraRotation, _cameraRotationSpeed * Time.deltaTime);
+
+		_myTransform.LookAt(_player);
     }
 
 	/// <summary>

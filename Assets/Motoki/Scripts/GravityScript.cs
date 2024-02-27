@@ -15,6 +15,9 @@ public class GravityScript : MonoBehaviour
 {
     #region 定数
 
+    private const string SPHERE = "Sphere";
+    private const string CUBE = "Cube";
+
     // 地面
     private const string GROUND = "Ground";
 
@@ -31,7 +34,7 @@ public class GravityScript : MonoBehaviour
     [SerializeField, Header("重力が最大になるまでの速度"), Range(0, 100)]
     private float _gravityMaxSpeed = 0f;
 
-    [SerializeField, Header("重力回転速度"), Range(0, 100)]
+    [SerializeField, Header("重力回転速度"), Range(0, 400)]
     private float _gravityRotationSpeed = 0f;
 
     [SerializeField, Header("重力変更時の回転速度"), Range(0, 100)]
@@ -77,7 +80,7 @@ public class GravityScript : MonoBehaviour
     private TimerScript _timerScript = default;
 
     // 重力方向
-    private Vector3 _gravityDirection = default;
+    private Vector3 _gravityDirection = Vector3.down;
 
     // 惑星
     private Transform[] _planets = default;
@@ -114,7 +117,6 @@ public class GravityScript : MonoBehaviour
         _moveScript = player.GetComponent<MoveScript>();
         _controlPlayerScript = player.GetComponent<ControlPlayerScript>();
 
-        _gravityDirection = Vector3.down;
         // 惑星の数を設定
         _planetCount = _myTransform.childCount;
         _planets = new Transform[_planetCount];
@@ -146,13 +148,20 @@ public class GravityScript : MonoBehaviour
     {
         Vector3 gravity = default;
 
+        if (_planet != null)
+        {
+            // 惑星の方向を設定
+            _gravityDirection = (_planet.position - targetPosition).normalized;
+        }
+        else
+        {
+            _gravityDirection = Vector3.down;
+        }
+
         // 着地判定
         if (!_controlPlayerScript.IsGround()
             && _jumpScript.JumpType != JumpScript.JumpState.JUMP)
-        {
-            // 惑星の方向を設定
-            _gravityDirection = _planet.position - targetPosition;
-
+        {         
             _gravityPower = UpGravityPower(_gravityPower, _gravityMaxPower, _gravityMaxSpeed);
 
             // 重力
@@ -171,9 +180,6 @@ public class GravityScript : MonoBehaviour
     /// </summary>
     public Quaternion GravityRotate(Transform target)
     {
-        // 惑星の方向を設定
-        _gravityDirection = _planet.position - target.position;
-
         // 重力の回転を設定
         Quaternion gravityRotation
             = Quaternion.FromToRotation(-target.up, _gravityDirection) * target.rotation;
@@ -188,7 +194,9 @@ public class GravityScript : MonoBehaviour
     {
         if (_timerScript.Execute() == TimerScript.TimerState.END)
         {
-            float nearPlanetDistance = 100000f;
+            float nearPlanetDistance = 10000f;
+
+            int gravityIndex = -1;
 
             _gravityRotationSpeed = _rotationSpeedTemp;
 
@@ -197,28 +205,41 @@ public class GravityScript : MonoBehaviour
                 // 距離を計算
                 float distance = DistanceToPlanet(_planets[i].position, _moveScript.MyTransform.position);
 
-                if (distance < _gravityScope + _planetRadiuses[i])
+                if (distance < _gravityScope + _planetRadiuses[i] 
+                    && distance - _planetRadiuses[i] < nearPlanetDistance)
                 {
                     // 惑星までの距離を設定
                     nearPlanetDistance = distance - _planetRadiuses[i];
 
-                    _gravityNumber = i;
+                    gravityIndex = i;
                 }
             }
-
-            if (_planet != _planets[_gravityNumber])
+            if (gravityIndex == -1 || _planets[gravityIndex].tag == CUBE)
+            {
+                _planet = null;
+            }
+            else if (_planet != _planets[gravityIndex] && _planets[gravityIndex].tag == SPHERE)
             {
                 // 惑星を設定
-                _planet = _planets[_gravityNumber];
+                _planet = _planets[gravityIndex];
 
                 // 惑星の半径を設定
-                _planetRadius = _planetRadiuses[_gravityNumber];
+                _planetRadius = _planetRadiuses[gravityIndex];
 
                 _timerScript.TimerReset();
 
                 _gravityRotationSpeed = _gravityChangeRotaionSpeed;
             }
+            
         }
+    }
+
+    private void OnDrawGizmos()
+    {
+        for (int i = 0; i < _planetCount; i++)
+        {
+            Gizmos.DrawWireSphere(_planets[i].position, _planetRadiuses[i] + _gravityScope);
+        }      
     }
 
     /// <summary>

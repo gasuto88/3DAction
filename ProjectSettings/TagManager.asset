@@ -8,6 +8,9 @@ TagManager:
   - TrackingObject
   - Actors
   - Avatar
+  - Cube
+  - Sphere
+  - Enemy
   layers:
   - Default
   - TransparentFX
