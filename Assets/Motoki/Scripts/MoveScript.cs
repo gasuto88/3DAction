@@ -109,7 +109,7 @@ public class MoveScript : MonoBehaviour
 		_beforePosition = _myTransform.position;
 
 		// 子を取得
-		_child = _myTransform.GetChild(0);
+		_child = GameObject.FindGameObjectWithTag("Avatar").transform;
 
 		// 移動アニメーションを取得
 		_moveAnim = GetComponent<Animator>();

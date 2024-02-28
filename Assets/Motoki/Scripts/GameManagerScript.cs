@@ -42,6 +42,7 @@ public class GameManagerScript : MonoBehaviour
 	private void Update () 
 	{
 		_controlPlayerScript.ControlPlayer();
+		_controlPlayerScript.IsCollision();
 		_gravityScript.SetNearPlanet();
 		_controlCameraScript.ControlCamera();
 		

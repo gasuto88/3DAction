@@ -32,6 +32,9 @@ public class ControlPlayerScript : MonoBehaviour
     [SerializeField,Header("足元の大きさ")]
     private Vector3 _legSize = default;
 
+    [SerializeField,Header("")]
+    private float _collisionSpeed = default;
+
     private Transform _myTransform = default;
 
     private RaycastHit _playerHit = default;
@@ -111,21 +114,25 @@ public class ControlPlayerScript : MonoBehaviour
         return false;
     }
 
-    public bool IsCollision()
+    /// <summary>
+    /// 衝突判定
+    /// </summary>
+    public void IsCollision()
     {
-        _playerHits = Physics.BoxCastAll(_myTransform.position + _myTransform.up * 0.6f, _bodySize,
-             _myTransform.forward, _myTransform.rotation,_rayDistance, LayerMask.GetMask(PLANET));
+        _playerHits = Physics.BoxCastAll(_myTransform.position + _myTransform.up * 2f, _bodySize,
+             _myTransform.forward, _myTransform.rotation, _rayDistance, LayerMask.GetMask(PLANET));
 
-        if (0 < _playerHits.Length)
+        if (0 < _playerHits.Length
+            && _playerHits[0].transform.tag == CUBE)
         {
-            return true;
+            Vector3 collisionDirection = _myTransform.position - _playerHits[0].point;
+
+            _myTransform.position += collisionDirection * Time.deltaTime;
         }
-        return false;
     }
 
     private void OnDrawGizmos()
     {
-        Gizmos.DrawWireCube(transform.position + transform.up * 0.6f, _bodySize);
+        Gizmos.DrawWireCube(transform.position + transform.up * 2f, _bodySize);
     }
-
 }

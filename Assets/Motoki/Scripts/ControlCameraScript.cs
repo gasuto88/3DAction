@@ -85,39 +85,6 @@ public class ControlCameraScript : MonoBehaviour
 	/// </summary>
 	public void ControlCamera()
     {
-		//// プレーやの方向取得
-		//Vector3 targetDirection = _player.position - _myTransform.position;
-
-		//// プレイヤーの方向を向く
-		//      Quaternion cameraRotation
-		//          = Quaternion.LookRotation(targetDirection);
-
-		//// プレイヤーの方向をなめらかに向く
-		//      _myTransform.rotation
-		//          = Quaternion.Slerp(_myTransform.rotation, cameraRotation, _cameraRotationSpeed * Time.deltaTime);
-
 		_myTransform.LookAt(_player);
-    }
-
-	/// <summary>
-	/// 障害物判定
-	/// </summary>
-	/// <returns></returns>
-	private bool IsCollisionObject()
-    {
-		Vector3 headDirction = _headTransform.position - _myTransform.position;
-		Vector3 legDirection = _legTransform.position - _myTransform.position;
-
-		float rayDistance = 5f;
-
-		if (Physics.Raycast
-			(_myTransform.position,headDirction,rayDistance,LayerMask.GetMask(PLANET))
-			|| Physics.Raycast
-			(_myTransform.position, legDirection, rayDistance, LayerMask.GetMask(PLANET)))
-        {
-			return true;
-        }
-
-		return false;
     }
 }
