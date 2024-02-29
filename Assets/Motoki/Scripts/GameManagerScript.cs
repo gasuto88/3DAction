@@ -13,11 +13,11 @@ public class GameManagerScript : MonoBehaviour
 
 	#region フィールド変数
 
-	private ControlPlayerScript _controlPlayerScript = default;
+	private PlayerControlScript _controlPlayerScript = default;
 
 	private GravityScript _gravityScript = default;
 
-	private ControlCameraScript _controlCameraScript = default;
+	private CameraControlScript _controlCameraScript = default;
 
 	#endregion
 
@@ -28,12 +28,12 @@ public class GameManagerScript : MonoBehaviour
 	{
 		GameObject player = GameObject.FindGameObjectWithTag("Player");
 
-		_controlPlayerScript = player.GetComponent<ControlPlayerScript>();
+		_controlPlayerScript = player.GetComponent<PlayerControlScript>();
 
 		_gravityScript = GameObject.FindGameObjectWithTag("Planet").GetComponent<GravityScript>();
 
 		_controlCameraScript 
-			= GameObject.FindGameObjectWithTag("MainCamera").GetComponent<ControlCameraScript>();
+			= GameObject.FindGameObjectWithTag("MainCamera").GetComponent<CameraControlScript>();
 	}
 	
 	/// <summary>
@@ -41,7 +41,7 @@ public class GameManagerScript : MonoBehaviour
     /// </summary>
 	private void Update () 
 	{
-		_controlPlayerScript.ControlPlayer();
+		_controlPlayerScript.PlayerControl();
 		_controlPlayerScript.IsCollision();
 		_gravityScript.SetNearPlanet();
 		_controlCameraScript.ControlCamera();

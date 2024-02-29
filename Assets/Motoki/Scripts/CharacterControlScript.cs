@@ -1,17 +1,17 @@
 /*-------------------------------------------------
-* MoveScript.cs
+* CharacterControlScript.cs
 * 
 * 作成日　2024/02/05
-* 更新日　2024/02/05
+* 更新日　2024/02/29
 *
 * 作成者　本木大地
 -------------------------------------------------*/
 using UnityEngine;
 
 /// <summary>
-/// 移動クラス
+/// キャラクターを制御するクラス
 /// </summary>
-public class MoveScript : MonoBehaviour 
+public class CharacterControlScript : MonoBehaviour 
 {
 	#region 定数
 
@@ -20,8 +20,13 @@ public class MoveScript : MonoBehaviour
 
 	private const string RUN = "Run";
 
-    // 半分の入力値
-    private const float HALF_INPUT = 0.5f;
+	// 半分
+	private const int HALF = 2;
+
+	private const string JUMP = "Jump";
+
+	// 半分の入力値
+	private const float HALF_INPUT = 0.5f;
 
     #endregion
 
@@ -41,6 +46,12 @@ public class MoveScript : MonoBehaviour
 
 	[SerializeField,Header("無入力時間"),Range(0,5)]
 	private float _noInputMaxTime = 0f;
+
+	[SerializeField, Header("ジャンプ力"), Range(0, 1000)]
+	private float _jumpMaxPower = 0f;
+
+	[SerializeField, Header("ジャンプ時間"), Range(0, 5)]
+	private float _jumpBaseTime = 0f;
 
 	// 移動速度
 	private float _moveSpeed = 0f;
@@ -71,9 +82,29 @@ public class MoveScript : MonoBehaviour
 	// 重力クラス
 	private GravityScript _gravityScript = default;
 
-	private ControlPlayerScript _controlPlayerScript = default;
+	private PlayerControlScript _controlPlayerScript = default;
 
-	private ControlCameraScript _controlCameraScript = default;
+	private CameraControlScript _controlCameraScript = default;
+
+	// 最大ジャンプ力
+	private float _jumpPower = 0f;
+
+	// タイマー
+	private float _jumpTime = 0f;
+
+	// タイマーの中間
+	private float _halfTime = 0f;
+
+	private Animator _playerAnimator = default;
+
+	private JumpState _jumpState = JumpState.START;
+
+	public enum JumpState
+	{
+		START,
+		JUMP,
+		END
+	}
 
 	// 移動状態
 	private MoveState _moveState = MoveState.MOVE;
@@ -93,6 +124,8 @@ public class MoveScript : MonoBehaviour
     #region プロパティ
 
 	public Vector3 MoveVector { get => _moveVector; set => _moveVector = value; }
+
+	public JumpState JumpType { get => _jumpState; set => _jumpState = value; }
 
 	public Transform MyTransform { get => _myTransform; set => _myTransform = value; }
 
@@ -114,17 +147,13 @@ public class MoveScript : MonoBehaviour
 		// 移動アニメーションを取得
 		_moveAnim = GetComponent<Animator>();
 
-		// InputScriptを取得
-		_inputScript = GetComponent<InputScript>();
-
-		// GravityScriptを取得
+		// Scriptを取得
 		_gravityScript
 			= GameObject.FindGameObjectWithTag("Planet").GetComponent<GravityScript>();
-
-		_controlPlayerScript = GetComponent<ControlPlayerScript>();
-
+		_inputScript = GetComponent<InputScript>();
+		_controlPlayerScript = GetComponent<PlayerControlScript>();
 		_controlCameraScript 
-			= GameObject.FindGameObjectWithTag("MainCamera").GetComponent<ControlCameraScript>();
+			= GameObject.FindGameObjectWithTag("MainCamera").GetComponent<CameraControlScript>();
 
 		_noInputTime = _noInputMaxTime;
 	}
@@ -188,24 +217,4 @@ public class MoveScript : MonoBehaviour
 			_child.rotation = Quaternion.Slerp(_child.rotation, forwardRotate, _rotationSpeed * Time.deltaTime);
         }
     }
-
-	/// <summary>
-	/// ブレーキ処理
-	/// </summary>
-	private void Brake()
-    {
-		if (isBrake)
-		{
-			Debug.Log("ブレーキ");
-			// 減速
-			_moveSpeed -= _brakeSpeed * Time.deltaTime;
-
-			if (_moveSpeed < 0.1f)
-			{
-				isBrake = false;
-
-				_moveSpeed = 0f;
-			}
-		}
-	}
 }

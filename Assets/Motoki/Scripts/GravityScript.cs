@@ -74,7 +74,7 @@ public class GravityScript : MonoBehaviour
     private JumpScript _jumpScript = default;
 
     // 移動クラス
-    private MoveScript _moveScript = default;
+    private CharacterControlScript _moveScript = default;
 
     // タイマー
     private TimerScript _timerScript = default;
@@ -87,7 +87,7 @@ public class GravityScript : MonoBehaviour
 
     private float[] _planetRadiuses = default;
 
-    private ControlPlayerScript _controlPlayerScript = default;
+    private PlayerControlScript _controlPlayerScript = default;
 
     #endregion
 
@@ -114,8 +114,8 @@ public class GravityScript : MonoBehaviour
         // Scriptを取得
         GameObject player = GameObject.FindGameObjectWithTag("Player");
         _jumpScript = player.GetComponent<JumpScript>();
-        _moveScript = player.GetComponent<MoveScript>();
-        _controlPlayerScript = player.GetComponent<ControlPlayerScript>();
+        _moveScript = player.GetComponent<CharacterControlScript>();
+        _controlPlayerScript = player.GetComponent<PlayerControlScript>();
 
         // 惑星の数を設定
         _planetCount = _myTransform.childCount;
@@ -214,7 +214,7 @@ public class GravityScript : MonoBehaviour
                     gravityIndex = i;
                 }
             }
-            if (gravityIndex == -1 || _planets[gravityIndex].tag == CUBE)
+            if (gravityIndex == -1)
             {
                 _planet = null;
             }

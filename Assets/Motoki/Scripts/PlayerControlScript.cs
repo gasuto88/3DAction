@@ -1,5 +1,5 @@
 /*-------------------------------------------------
-* PlayerScript.cs
+* PlayerControlScript.cs
 * 
 * 作成日　2024/02/15
 * 更新日　2024/02/27
@@ -11,7 +11,7 @@ using UnityEngine;
 /// <summary>
 /// プレイヤーを制御するクラス
 /// </summary>
-public class ControlPlayerScript : MonoBehaviour
+public class PlayerControlScript : MonoBehaviour
 {
 
     #region 定数
@@ -23,17 +23,8 @@ public class ControlPlayerScript : MonoBehaviour
 
     #region フィールド変数
 
-    [SerializeField, Header("足元の座標")]
-    private Transform _legTransform = default;
-
-    [SerializeField, Header("体の大きさ")]
-    private Vector3 _bodySize = default;
-
     [SerializeField,Header("足元の大きさ")]
     private Vector3 _legSize = default;
-
-    [SerializeField,Header("")]
-    private float _collisionSpeed = default;
 
     private Transform _myTransform = default;
 
@@ -45,7 +36,7 @@ public class ControlPlayerScript : MonoBehaviour
 
     private Collider[] colliders = new Collider[2];
 
-    private MoveScript _moveScript = default;
+    private CharacterControlScript _moveScript = default;
 
     private JumpScript _jumpScript = default;
 
@@ -67,7 +58,7 @@ public class ControlPlayerScript : MonoBehaviour
         _myTransform = transform;
 
         // Scriptを取得
-        _moveScript = GetComponent<MoveScript>();
+        _moveScript = GetComponent<CharacterControlScript>();
         _jumpScript = GetComponent<JumpScript>();
         _gravityScript
             = GameObject.FindGameObjectWithTag("Planet").GetComponent<GravityScript>();
@@ -76,7 +67,7 @@ public class ControlPlayerScript : MonoBehaviour
     /// <summary>
     /// プレイヤーを制御する処理
     /// </summary>
-    public void ControlPlayer()
+    public void PlayerControl()
     {
         _moveScript.Move();
         _jumpScript.Jump();
@@ -119,20 +110,20 @@ public class ControlPlayerScript : MonoBehaviour
     /// </summary>
     public void IsCollision()
     {
-        _playerHits = Physics.BoxCastAll(_myTransform.position + _myTransform.up * 2f, _bodySize,
-             _myTransform.forward, _myTransform.rotation, _rayDistance, LayerMask.GetMask(PLANET));
+        //_playerHits = Physics.BoxCastAll(_myTransform.position + _myTransform.up * 2f, _bodySize,
+        //     _myTransform.forward, _myTransform.rotation, _rayDistance, LayerMask.GetMask(PLANET));
 
-        if (0 < _playerHits.Length
-            && _playerHits[0].transform.tag == CUBE)
-        {
-            Vector3 collisionDirection = _myTransform.position - _playerHits[0].point;
+        //if (0 < _playerHits.Length
+        //    && _playerHits[0].transform.tag == CUBE)
+        //{
+        //    Vector3 collisionDirection = _myTransform.position - _playerHits[0].point;
 
-            _myTransform.position += collisionDirection * Time.deltaTime;
-        }
+        //    _myTransform.position += collisionDirection * Time.deltaTime;
+        //}
     }
 
-    private void OnDrawGizmos()
-    {
-        Gizmos.DrawWireCube(transform.position + transform.up * 2f, _bodySize);
-    }
+    //private void OnDrawGizmos()
+    //{
+    //    Gizmos.DrawWireCube(transform.position + transform.up * 2f, _bodySize);
+    //}
 }

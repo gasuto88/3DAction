@@ -1,5 +1,5 @@
 /*-------------------------------------------------
-* ControlCameraScript.cs
+* CameraControlScript.cs
 * 
 * 作成日　2024/02/05
 * 更新日　2024/02/05
@@ -11,7 +11,7 @@ using UnityEngine;
 /// <summary>
 /// カメラを制御するクラス
 /// </summary>
-public class ControlCameraScript : MonoBehaviour 
+public class CameraControlScript : MonoBehaviour 
 {
 
 	#region 定数
@@ -48,7 +48,7 @@ public class ControlCameraScript : MonoBehaviour
 
 	private GravityScript _gravityScript = default;
 
-	private MoveScript _moveScript = default;
+	private CharacterControlScript _moveScript = default;
 
     #endregion
 
@@ -68,7 +68,7 @@ public class ControlCameraScript : MonoBehaviour
 
 		_player = GameObject.FindGameObjectWithTag("Player").transform;
 
-		_moveScript = _player.GetComponent<MoveScript>();
+		_moveScript = _player.GetComponent<CharacterControlScript>();
 
 		_gravityScript
 			= GameObject.FindGameObjectWithTag("Planet").GetComponent<GravityScript>();

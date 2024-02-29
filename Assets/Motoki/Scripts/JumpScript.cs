@@ -50,7 +50,7 @@ public class JumpScript : MonoBehaviour
 	private InputScript _inputScript = default;
 
 	// プレイヤーを制御するクラス
-	private ControlPlayerScript _controlPlayerScript = default;
+	private PlayerControlScript _controlPlayerScript = default;
 
 	private Animator _playerAnimator = default;
 
@@ -81,7 +81,7 @@ public class JumpScript : MonoBehaviour
 
 		// Scriptを取得
 		_inputScript = GetComponent<InputScript>();
-		_controlPlayerScript = GetComponent<ControlPlayerScript>();
+		_controlPlayerScript = GetComponent<PlayerControlScript>();
 
 		// タイマーの中間を設定
 		_halfTime = _jumpBaseTime / HALF;
