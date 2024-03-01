@@ -44,12 +44,6 @@ public class CameraControlScript : MonoBehaviour
 
 	private Vector3 _cameraPosition = default;
 
-	private bool isTurning = false;
-
-	private GravityScript _gravityScript = default;
-
-	private CharacterControlScript _moveScript = default;
-
     #endregion
 
     #region プロパティ
@@ -67,11 +61,6 @@ public class CameraControlScript : MonoBehaviour
 		_myTransform = transform;
 
 		_player = GameObject.FindGameObjectWithTag("Player").transform;
-
-		_moveScript = _player.GetComponent<CharacterControlScript>();
-
-		_gravityScript
-			= GameObject.FindGameObjectWithTag("Planet").GetComponent<GravityScript>();
 
 		_offset = _myTransform.position - _player.position;
 

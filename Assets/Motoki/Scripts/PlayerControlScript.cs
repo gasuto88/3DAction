@@ -11,119 +11,163 @@ using UnityEngine;
 /// <summary>
 /// プレイヤーを制御するクラス
 /// </summary>
-public class PlayerControlScript : MonoBehaviour
+public class PlayerControlScript : CharacterControlScript
 {
 
-    #region 定数
+	#region 定数
 
-    private const string PLANET = "Planet";
-    private const string CUBE = "Cube";
+	private const string JUMP = "Jump";
 
-    #endregion
+	// 半分
+	private const int HALF = 2;
 
-    #region フィールド変数
+	#endregion
 
-    [SerializeField,Header("足元の大きさ")]
-    private Vector3 _legSize = default;
+	#region フィールド定数
 
-    private Transform _myTransform = default;
+	[SerializeField, Header("ジャンプ力"), Range(0, 1000)]
+	private float _jumpMaxPower = 0f;
 
-    private RaycastHit _playerHit = default;
+	[SerializeField, Header("ジャンプ時間"), Range(0, 5)]
+	private float _jumpBaseTime = 0f;
 
-    private RaycastHit[] _playerHits = default;
+	// 最大ジャンプ力
+	private float _jumpPower = 0f;
 
-    private float _rayDistance = 1f;
+	// タイマー
+	private float _jumpTime = 0f;
 
-    private Collider[] colliders = new Collider[2];
+	// タイマーの中間
+	private float _halfTime = 0f;
 
-    private CharacterControlScript _moveScript = default;
+	private Animator _playerAnimator = default;
 
-    private JumpScript _jumpScript = default;
+	protected JumpState _jumpState = JumpState.START;
 
-    private GravityScript _gravityScript = default;
+	public enum JumpState
+	{
+		START,
+		JUMP,
+		END
+	}
 
-    #endregion
+	#endregion
 
-    #region 定数
+	#region プロパティ
 
-    public RaycastHit PlayerHit { get => _playerHit; set => _playerHit = value; }
+	public JumpState JumpType { get => _jumpState; set => _jumpState = value; }
 
-    #endregion
+	#endregion
 
-    /// <summary>
-    /// 更新前処理
-    /// </summary>
-    private void Start()
+
+	protected override void Start()
     {
-        _myTransform = transform;
+		base.Start();
+		// タイマーの中間を設定
+		_halfTime = _jumpBaseTime / HALF;
 
-        // Scriptを取得
-        _moveScript = GetComponent<CharacterControlScript>();
-        _jumpScript = GetComponent<JumpScript>();
-        _gravityScript
-            = GameObject.FindGameObjectWithTag("Planet").GetComponent<GravityScript>();
+		_inputScript = GetComponent<InputScript>();
+
+		// 移動アニメーションを取得
+		_moveAnim = GetComponent<Animator>();
+	}
+
+    public override void CharacterControl()
+    {
+		// 入力取得
+		Vector2 moveInput = _inputScript.InputMove();
+
+		Move(moveInput);
+
+		Jump();
+		
+		//SetNearPlanet();
     }
 
-    /// <summary>
-    /// プレイヤーを制御する処理
-    /// </summary>
-    public void PlayerControl()
-    {
-        _moveScript.Move();
-        _jumpScript.Jump();
-        GravityBehavior();
-    }
-
-    /// <summary>
-    /// 重力挙動処理
-    /// </summary>
-    private void GravityBehavior()
-    {
-        _myTransform.position += _gravityScript.Gravity(_myTransform.position);
-        _myTransform.rotation = _gravityScript.GravityRotate(_myTransform);
-    }
-
-    /// <summary>
-	/// 着地判定
+	/// <summary>
+	/// ジャンプ処理
 	/// </summary>
-	public bool IsGround()
-    {
-        // 惑星までの距離を設定
-        //float distance
-        //    = _gravityScript.DistanceToPlanet(_gravityScript.Planet.position, _legTransform.position);
+	protected void Jump()
+	{
+		switch (_jumpState)
+		{
+			// 開始状態
+			case JumpState.START:
 
-        //if (distance <= _gravityScript.PlanetRadius + 0.1f)
-        //{
-        //    return true;
-        //}
+				// 入力判定
+				// 着地判定
+				if (_inputScript.IsJumpButtonDown()
+					&& IsGround())
+				{
+					_jumpState = JumpState.JUMP;
 
-        if (Physics.CheckBox(_myTransform.position + _myTransform.up * 0.6f, _legSize,
-            _myTransform.rotation, LayerMask.GetMask(PLANET)))
-        {
-            return true;
-        }
-        return false;
-    }
+					_moveAnim.SetBool(JUMP, true);
 
-    /// <summary>
-    /// 衝突判定
-    /// </summary>
-    public void IsCollision()
-    {
-        //_playerHits = Physics.BoxCastAll(_myTransform.position + _myTransform.up * 2f, _bodySize,
-        //     _myTransform.forward, _myTransform.rotation, _rayDistance, LayerMask.GetMask(PLANET));
+					_jumpPower = 0f;
 
-        //if (0 < _playerHits.Length
-        //    && _playerHits[0].transform.tag == CUBE)
-        //{
-        //    Vector3 collisionDirection = _myTransform.position - _playerHits[0].point;
+					// タイマーの初期化
+					_jumpTime = _jumpBaseTime;
+				}
+				break;
 
-        //    _myTransform.position += collisionDirection * Time.deltaTime;
-        //}
-    }
+			// ジャンプ状態
+			case JumpState.JUMP:
 
-    //private void OnDrawGizmos()
-    //{
-    //    Gizmos.DrawWireCube(transform.position + transform.up * 2f, _bodySize);
-    //}
+				_jumpPower = DemandJumpPower(_jumpPower, _jumpMaxPower, _jumpTime, _jumpBaseTime);
+
+				// 上方向に移動
+				_myTransform.position
+					+= _myTransform.up * _jumpPower * Time.deltaTime;
+
+				_jumpTime -= Time.deltaTime;
+
+				// タイマーが終了したら
+				if (_jumpTime <= 0f)
+				{
+					_jumpState = JumpState.END;
+				}
+
+				break;
+
+			// 終了状態
+			case JumpState.END:
+
+				// メモ 着地クールタイム
+
+				_moveAnim.SetBool(JUMP, false);
+
+				_jumpState = JumpState.START;
+
+				break;
+		}
+	}
+
+	/// <summary>
+	/// ジャンプの強さを求める処理
+	/// </summary>
+	/// <param name="time">経過時間</param>
+	/// <param name="baseTime">設定時間</param>
+	/// <returns>ジャンプの強さ</returns>
+	private float DemandJumpPower(float jumpPower, float jumpMaxPower, float time, float baseTime)
+	{
+		if (_halfTime < _jumpTime)
+		{
+			jumpPower += (jumpMaxPower / baseTime) * Time.deltaTime;
+		}
+		else if (_jumpTime <= _halfTime)
+		{
+			jumpPower -= (jumpMaxPower / baseTime) * Time.deltaTime;
+		}
+
+		if (jumpMaxPower < jumpPower)
+		{
+			jumpPower = jumpMaxPower;
+		}
+		else if (jumpPower < 0f)
+		{
+			jumpPower = 0f;
+		}
+		return jumpPower;
+	}
+
 }

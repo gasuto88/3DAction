@@ -11,11 +11,11 @@ using UnityEngine;
 public class GameManagerScript : MonoBehaviour 
 {
 
-	#region フィールド変数
+    #region フィールド変数
 
-	private PlayerControlScript _controlPlayerScript = default;
+    private CharacterControlScript[] _characterControlScripts = default;
 
-	private GravityScript _gravityScript = default;
+	private CharacterControlScript _characterControlScript = default;
 
 	private CameraControlScript _controlCameraScript = default;
 
@@ -26,25 +26,23 @@ public class GameManagerScript : MonoBehaviour
     /// </summary>
 	private void Start () 
 	{
-		GameObject player = GameObject.FindGameObjectWithTag("Player");
-
-		_controlPlayerScript = player.GetComponent<PlayerControlScript>();
-
-		_gravityScript = GameObject.FindGameObjectWithTag("Planet").GetComponent<GravityScript>();
-
 		_controlCameraScript 
 			= GameObject.FindGameObjectWithTag("MainCamera").GetComponent<CameraControlScript>();
-	}
+		
+        _characterControlScripts = GameObject.FindObjectsOfType<CharacterControlScript>();
+    }
 	
 	/// <summary>
     /// 更新処理
     /// </summary>
 	private void Update () 
 	{
-		_controlPlayerScript.PlayerControl();
-		_controlPlayerScript.IsCollision();
-		_gravityScript.SetNearPlanet();
-		_controlCameraScript.ControlCamera();
+        foreach (CharacterControlScript script in _characterControlScripts)
+        {
+            script.CharacterControl();
+        }
+
+        _controlCameraScript.ControlCamera();
 		
 	}
 }

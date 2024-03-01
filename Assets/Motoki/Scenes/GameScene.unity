@@ -615,10 +615,8 @@ GameObject:
   m_Component:
   - component: {fileID: 41036840}
   - component: {fileID: 48546758}
-  - component: {fileID: 48546762}
-  - component: {fileID: 48546761}
-  - component: {fileID: 48546760}
   - component: {fileID: 48546765}
+  - component: {fileID: 48546766}
   - component: {fileID: 48546764}
   m_Layer: 0
   m_Name: Player
@@ -1055,63 +1053,6 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &48546760
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 41267208}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3fcd4736a87656546b506cbec9b00ab7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _jumpMaxPower: 30
-  _jumpBaseTime: 0.5
---- !u!114 &48546761
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 41267208}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 88f249d0f53200944889e76885bd459a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _moveMaxSpeed: 20
-  _rotationSpeed: 5
-  _accelSpeed: 5
-  _brakeSpeed: 40
-  _noInputMaxTime: 0.05
-  _moveSpeed: 0
-  isBrake: 0
-  _noInputTime: 0
-  _myTransform: {fileID: 0}
-  _moveVector: {x: 0, y: 0, z: 0}
-  _beforePosition: {x: 0, y: 0, z: 0}
-  _child: {fileID: 0}
-  _moveAnim: {fileID: 0}
-  _inputScript: {fileID: 0}
-  _gravityScript: {fileID: 0}
-  _controlPlayerScript: {fileID: 0}
-  _controlCameraScript: {fileID: 0}
-  _moveState: 1
---- !u!114 &48546762
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 41267208}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4a4b196cf8f1b0d4ea25520b3a88e73a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _deadZoon: 0.05
 --- !u!136 &48546764
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -1147,7 +1088,33 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 026127eaad6990845a696cace3003695, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _moveMaxSpeed: 10
+  _rotationSpeed: 5
+  _accelSpeed: 5
+  _brakeSpeed: 30
+  _noInputMaxTime: 0.1
+  _gravityMaxPower: 15
+  _gravityMaxSpeed: 8
+  _gravityRotationSpeed: 100
+  _gravityChangeRotaionSpeed: 0
+  _gravityScope: 5
+  _gravityChangeTime: 2
   _legSize: {x: 0.1, y: 0.1, z: 0.1}
+  _jumpMaxPower: 30
+  _jumpBaseTime: 0.5
+--- !u!114 &48546766
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 41267208}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fca43752e38685e4b919f276b0b4ea62, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _deadZoon: 0.05
 --- !u!1 &89549679
 GameObject:
   m_ObjectHideFlags: 0
@@ -1433,61 +1400,15 @@ GameObject:
   - component: {fileID: 234299334}
   - component: {fileID: 234299333}
   - component: {fileID: 234299332}
-  - component: {fileID: 234299331}
   - component: {fileID: 234299335}
-  - component: {fileID: 234299330}
-  - component: {fileID: 234299328}
+  - component: {fileID: 234299331}
   m_Layer: 0
   m_Name: Enemy
   m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &234299328
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 234299327}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3fcd4736a87656546b506cbec9b00ab7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _jumpMaxPower: 30
-  _jumpBaseTime: 0.5
---- !u!114 &234299330
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 234299327}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 88f249d0f53200944889e76885bd459a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _moveMaxSpeed: 10
-  _rotationSpeed: 15
-  _accelSpeed: 10
-  _brakeSpeed: 40
-  _noInputMaxTime: 0.05
-  _moveSpeed: 0
-  isBrake: 0
-  _noInputTime: 0
-  _myTransform: {fileID: 0}
-  _moveVector: {x: 0, y: 0, z: 0}
-  _beforePosition: {x: 0, y: 0, z: 0}
-  _child: {fileID: 0}
-  _moveAnim: {fileID: 0}
-  _inputScript: {fileID: 0}
-  _gravityScript: {fileID: 0}
-  _controlPlayerScript: {fileID: 0}
-  _controlCameraScript: {fileID: 0}
-  _moveState: 1
+  m_IsActive: 0
 --- !u!65 &234299331
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1586,6 +1507,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6da71be92cd4a3c4e8c12d2cdba00e97, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _moveMaxSpeed: 0
+  _rotationSpeed: 0
+  _accelSpeed: 0
+  _brakeSpeed: 0
+  _noInputMaxTime: 0
+  _gravityMaxPower: 0
+  _gravityMaxSpeed: 0
+  _gravityRotationSpeed: 0
+  _gravityChangeRotaionSpeed: 0
+  _gravityScope: 0
+  _gravityChangeTime: 0
   _legSize: {x: 0, y: 0, z: 0}
 --- !u!1 &435906497
 GameObject:
@@ -1721,7 +1653,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 745498807}
-  - component: {fileID: 745498808}
   m_Layer: 0
   m_Name: Planets
   m_TagString: Planet
@@ -1748,24 +1679,6 @@ Transform:
   - {fileID: 2020053139}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &745498808
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 745498806}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 236d72ff392388e4ebf922f16740d3ed, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _gravityMaxPower: 50
-  _gravityMaxSpeed: 25
-  _gravityRotationSpeed: 180
-  _gravityChangeRotaionSpeed: 5
-  _gravityScope: 4
-  _gravityChangeTime: 1
 --- !u!1 &963194225
 GameObject:
   m_ObjectHideFlags: 0
@@ -1981,130 +1894,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 745498807}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1416920441
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1416920445}
-  - component: {fileID: 1416920444}
-  - component: {fileID: 1416920443}
-  - component: {fileID: 1416920446}
-  - component: {fileID: 1416920442}
-  m_Layer: 7
-  m_Name: Planet
-  m_TagString: Planet
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!65 &1416920442
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1416920441}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!23 &1416920443
-MeshRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1416920441}
-  m_Enabled: 1
-  m_CastShadows: 1
-  m_ReceiveShadows: 1
-  m_DynamicOccludee: 1
-  m_StaticShadowCaster: 0
-  m_MotionVectors: 1
-  m_LightProbeUsage: 1
-  m_ReflectionProbeUsage: 1
-  m_RayTracingMode: 2
-  m_RayTraceProcedural: 0
-  m_RenderingLayerMask: 1
-  m_RendererPriority: 0
-  m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
-  m_StaticBatchInfo:
-    firstSubMesh: 0
-    subMeshCount: 0
-  m_StaticBatchRoot: {fileID: 0}
-  m_ProbeAnchor: {fileID: 0}
-  m_LightProbeVolumeOverride: {fileID: 0}
-  m_ScaleInLightmap: 1
-  m_ReceiveGI: 1
-  m_PreserveUVs: 0
-  m_IgnoreNormalsForChartDetection: 0
-  m_ImportantGI: 0
-  m_StitchLightmapSeams: 1
-  m_SelectedEditorRenderState: 3
-  m_MinimumChartSize: 4
-  m_AutoUVMaxDistance: 0.5
-  m_AutoUVMaxAngle: 89
-  m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 0
-  m_AdditionalVertexStreams: {fileID: 0}
---- !u!33 &1416920444
-MeshFilter:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1416920441}
-  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!4 &1416920445
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1416920441}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 42.6, y: -11.4, z: -24.625662}
-  m_LocalScale: {x: 20, y: 20, z: 100}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1416920446
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1416920441}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 236d72ff392388e4ebf922f16740d3ed, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _gravityMaxPower: 5
-  _gravityMaxSpeed: 2
-  _gravityRotationSpeed: 100
-  _gravityChangeRotaionSpeed: 2
-  _gravityScope: 3
-  _gravityChangeTime: 1
 --- !u!1 &1559930120
 GameObject:
   m_ObjectHideFlags: 0
@@ -2323,5 +2112,4 @@ SceneRoots:
   - {fileID: 89549681}
   - {fileID: 41036840}
   - {fileID: 745498807}
-  - {fileID: 1416920445}
   - {fileID: 234299334}
