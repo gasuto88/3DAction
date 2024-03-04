@@ -15,8 +15,6 @@ public class GameManagerScript : MonoBehaviour
 
     private CharacterControlScript[] _characterControlScripts = default;
 
-	private CharacterControlScript _characterControlScript = default;
-
 	private CameraControlScript _controlCameraScript = default;
 
 	#endregion

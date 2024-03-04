@@ -13,161 +13,202 @@ using UnityEngine;
 /// </summary>
 public class PlayerControlScript : CharacterControlScript
 {
+    #region 定数
 
-	#region 定数
+    private const string JUMP_FLAG_NAME = "Jump";
 
-	private const string JUMP = "Jump";
+    // 半分
+    private const int HALF = 2;
 
-	// 半分
-	private const int HALF = 2;
+    #endregion
 
-	#endregion
+    #region フィールド定数
 
-	#region フィールド定数
+    [SerializeField, Header("ジャンプ力"), Range(0, 1000)]
+    private float _jumpMaxPower = 0f;
 
-	[SerializeField, Header("ジャンプ力"), Range(0, 1000)]
-	private float _jumpMaxPower = 0f;
+    [SerializeField, Header("ジャンプ時間"), Range(0, 5)]
+    private float _jumpBaseTime = 0f;
 
-	[SerializeField, Header("ジャンプ時間"), Range(0, 5)]
-	private float _jumpBaseTime = 0f;
+    // 最大ジャンプ力
+    private float _jumpPower = 0f;
 
-	// 最大ジャンプ力
-	private float _jumpPower = 0f;
+    // タイマー
+    private float _jumpTime = 0f;
 
-	// タイマー
-	private float _jumpTime = 0f;
+    // タイマーの中間
+    private float _halfTime = 0f;
 
-	// タイマーの中間
-	private float _halfTime = 0f;
+    protected JumpState _jumpState = JumpState.START;
 
-	private Animator _playerAnimator = default;
-
-	protected JumpState _jumpState = JumpState.START;
-
-	public enum JumpState
-	{
-		START,
-		JUMP,
-		END
-	}
-
-	#endregion
-
-	#region プロパティ
-
-	public JumpState JumpType { get => _jumpState; set => _jumpState = value; }
-
-	#endregion
-
-
-	protected override void Start()
+    public enum JumpState
     {
-		base.Start();
-		// タイマーの中間を設定
-		_halfTime = _jumpBaseTime / HALF;
+        IDLE,
+        START,
+        JUMP,
+        END
+    }
 
-		_inputScript = GetComponent<InputScript>();
+    #endregion
 
-		// 移動アニメーションを取得
-		_moveAnim = GetComponent<Animator>();
-	}
+    #region プロパティ
+
+    public JumpState JumpType { get => _jumpState; set => _jumpState = value; }
+
+    #endregion
+
+
+    protected override void Start()
+    {
+        base.Start();
+
+        // タイマーの中間を設定
+        _halfTime = _jumpBaseTime / HALF;
+
+        _planetManagerScript.SetNearPlanet(_myTransform.position);
+    }
 
     public override void CharacterControl()
     {
-		// 入力取得
-		Vector2 moveInput = _inputScript.InputMove();
+        base.CharacterControl();
 
-		Move(moveInput);
+        // ジャンプ状態を取得
+        _jumpState = JumpStateMachine();
 
-		Jump();
-		
-		//SetNearPlanet();
+        switch (_jumpState)
+        {
+            // 開始状態
+            case JumpState.START:
+
+                JumpInit();
+
+                break;
+
+            // ジャンプ状態
+            case JumpState.JUMP:
+
+                Jump();
+
+                break;
+
+            // 終了状態
+            case JumpState.END:
+
+                _characterAnimator.SetBool(JUMP_FLAG_NAME, false);
+
+                break;
+        }
+
+        _planetManagerScript.SetNearPlanet(_myTransform.position);
     }
 
-	/// <summary>
-	/// ジャンプ処理
-	/// </summary>
-	protected void Jump()
-	{
-		switch (_jumpState)
-		{
-			// 開始状態
-			case JumpState.START:
+    /// <summary>
+    /// ジャンプ初期化処理
+    /// </summary>
+    private void JumpInit()
+    {
+        _characterAnimator.SetBool(JUMP_FLAG_NAME, true);
 
-				// 入力判定
-				// 着地判定
-				if (_inputScript.IsJumpButtonDown()
-					&& IsGround())
-				{
-					_jumpState = JumpState.JUMP;
+        _jumpPower = 0f;
 
-					_moveAnim.SetBool(JUMP, true);
+        // タイマーの初期化
+        _jumpTime = _jumpBaseTime;
+    }
 
-					_jumpPower = 0f;
+    /// <summary>
+    /// ジャンプ処理
+    /// </summary>
+    private void Jump()
+    {
+        _jumpPower = CalculationJumpPower(_jumpPower, _jumpMaxPower, _jumpTime, _jumpBaseTime);
 
-					// タイマーの初期化
-					_jumpTime = _jumpBaseTime;
-				}
-				break;
+        // 上方向に移動
+        _myTransform.position
+            += _myTransform.up * _jumpPower * Time.deltaTime;
+    }
 
-			// ジャンプ状態
-			case JumpState.JUMP:
+    /// <summary>
+    /// ジャンプ状態管理処理
+    /// </summary>
+    /// <returns>ジャンプ状態</returns>
+    private JumpState JumpStateMachine()
+    {
+        JumpState stateTemp = _jumpState;
 
-				_jumpPower = DemandJumpPower(_jumpPower, _jumpMaxPower, _jumpTime, _jumpBaseTime);
+        switch (stateTemp)
+        {
+            // 待機状態
+            case JumpState.IDLE:
 
-				// 上方向に移動
-				_myTransform.position
-					+= _myTransform.up * _jumpPower * Time.deltaTime;
+                // 入力判定
+                // 着地判定
+                if (_inputScript.IsJumpButtonDown()
+                    && isGround)
+                {
+                    stateTemp = JumpState.START;
+                }
+                break;
 
-				_jumpTime -= Time.deltaTime;
+            // 開始状態
+            case JumpState.START:
 
-				// タイマーが終了したら
-				if (_jumpTime <= 0f)
-				{
-					_jumpState = JumpState.END;
-				}
+                stateTemp = JumpState.JUMP;
 
-				break;
+                break;
 
-			// 終了状態
-			case JumpState.END:
+            // ジャンプ状態
+            case JumpState.JUMP:
 
-				// メモ 着地クールタイム
+                _jumpTime -= Time.deltaTime;
 
-				_moveAnim.SetBool(JUMP, false);
+                // タイマーが終了したら
+                if (_jumpTime <= 0f)
+                {
+                    stateTemp = JumpState.END;
+                }
 
-				_jumpState = JumpState.START;
+                break;
 
-				break;
-		}
-	}
+            // 終了状態
+            case JumpState.END:
 
-	/// <summary>
-	/// ジャンプの強さを求める処理
-	/// </summary>
-	/// <param name="time">経過時間</param>
-	/// <param name="baseTime">設定時間</param>
-	/// <returns>ジャンプの強さ</returns>
-	private float DemandJumpPower(float jumpPower, float jumpMaxPower, float time, float baseTime)
-	{
-		if (_halfTime < _jumpTime)
-		{
-			jumpPower += (jumpMaxPower / baseTime) * Time.deltaTime;
-		}
-		else if (_jumpTime <= _halfTime)
-		{
-			jumpPower -= (jumpMaxPower / baseTime) * Time.deltaTime;
-		}
+                stateTemp = JumpState.IDLE;
 
-		if (jumpMaxPower < jumpPower)
-		{
-			jumpPower = jumpMaxPower;
-		}
-		else if (jumpPower < 0f)
-		{
-			jumpPower = 0f;
-		}
-		return jumpPower;
-	}
+                break;
+        }
+        
+        // ジャンプ状態
+        return stateTemp;
+    }
 
+    /// <summary>
+    /// ジャンプ力を計算する処理
+    /// </summary>
+    /// <param name="jumpPower">ジャンプ力/param>
+    /// <param name="jumpMaxPower">最大ジャンプ力</param>
+    /// <param name="time">経過時間</param>
+    /// <param name="baseTime">設定時間</param>
+    /// <returns>ジャンプ力</returns>
+    private float CalculationJumpPower(
+        float jumpPower, float jumpMaxPower, float time, float baseTime)
+    {
+        if (_halfTime < _jumpTime)
+        {
+            jumpPower += (jumpMaxPower / baseTime) * Time.deltaTime;
+        }
+        else if (_jumpTime <= _halfTime)
+        {
+            jumpPower -= (jumpMaxPower / baseTime) * Time.deltaTime;
+        }
+
+        if (jumpMaxPower < jumpPower)
+        {
+            jumpPower = jumpMaxPower;
+        }
+        else if (jumpPower < 0f)
+        {
+            jumpPower = 0f;
+        }
+        return jumpPower;
+    }
 }

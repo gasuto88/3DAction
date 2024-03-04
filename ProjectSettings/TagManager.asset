@@ -11,6 +11,7 @@ TagManager:
   - Cube
   - Sphere
   - Enemy
+  - BlackHole
   layers:
   - Default
   - TransparentFX

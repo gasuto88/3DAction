@@ -22,18 +22,6 @@ public class CameraControlScript : MonoBehaviour
 
     #region フィールド変数
 
-    [SerializeField,Header("カメラの回転速度"),Range(0,200)]
-	private float _cameraRotationSpeed = 0f;
-
-	[SerializeField, Header("カメラの旋回速度"), Range(0, 200)]
-	private float _cameraTurningSpeed = 0f;
-
-	[SerializeField,Header("プレイヤーの頭の座標")]
-	private Transform _headTransform = default;
-
-	[SerializeField, Header("プレイヤーの足の座標")]
-	private Transform _legTransform = default;
-
 	// 自分のTransform
 	private Transform _myTransform = default;
 

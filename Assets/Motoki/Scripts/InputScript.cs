@@ -11,7 +11,7 @@ using UnityEngine;
 /// <summary>
 /// 入力判定クラス
 /// </summary>
-public class InputScript : MonoBehaviour 
+public abstract class InputScript : MonoBehaviour 
 {
     #region 定数
 
@@ -26,19 +26,13 @@ public class InputScript : MonoBehaviour
     /// 移動の入力
     /// </summary>
     /// <returns></returns>
-    public virtual Vector2 InputMove()
-    {
-        return default;
-    }
+    public abstract Vector2 InputMove();
 
     /// <summary>
     /// ジャンプボタンを押した判定
     /// </summary>
     /// <returns>入力判定</returns>
-	public virtual bool IsJumpButtonDown()
-    {
-        return false;
-    }
+    public abstract bool IsJumpButtonDown();
 
     /// <summary>
     /// ジャンプボタンを離した判定
