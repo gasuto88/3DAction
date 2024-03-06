@@ -46,11 +46,24 @@ public class CharacterControlScript : MonoBehaviour
     [SerializeField, Header("重力回転速度"), Range(0, 400)]
     private float _gravityRotationSpeed = 0f;
 
+    [SerializeField, Header("無重力時間"), Range(0, 10)]
+    private float _zeroGravityCoolTime = 0f;
+
+    [SerializeField, Header("惑星変更時間"), Range(0, 10)]
+    private float _planetChangeCoolTime = 0f;
+
     [SerializeField, Header("足元の大きさ")]
     private Vector3 _legSize = default;
 
+    [SerializeField]
+    private PlanetScript _startPlanet = default;
+
     // 移動速度
     private float _moveSpeed = 0f;
+
+    private float _zeroGravityTime = 0f;
+
+    private float _planetChangeTime = default;
 
     // 自分のTransform
     protected Transform _myTransform = default;
@@ -68,8 +81,11 @@ public class CharacterControlScript : MonoBehaviour
     protected InputScript _inputScript = default;
 
     private float _gravityPower = 0f;
+
     // 着地判定
     protected bool isGround = false;
+
+    private bool isChangePlanet = false;
 
     // 現在いる惑星
     private PlanetScript _nowPlanet = default;
@@ -82,6 +98,8 @@ public class CharacterControlScript : MonoBehaviour
     #endregion
 
     #region プロパティ
+
+    public bool IsChangePlanet { get => isChangePlanet; set => isChangePlanet = value; }
 
     #endregion
 
@@ -101,7 +119,14 @@ public class CharacterControlScript : MonoBehaviour
         // Scriptを取得
         _inputScript = GetComponent<InputScript>();
         _planetManagerScript
-            = GameObject.FindGameObjectWithTag("Planet").GetComponent<PlanetManagerScript>();
+            = GameObject.FindGameObjectWithTag("Planet")
+            .GetComponent<PlanetManagerScript>();
+
+        _zeroGravityTime = _zeroGravityCoolTime;
+
+        _planetChangeTime = _planetChangeCoolTime;
+
+        _nowPlanet = _startPlanet;
     }
 
     public virtual void CharacterControl()
@@ -134,18 +159,30 @@ public class CharacterControlScript : MonoBehaviour
         isGround = IsGround();
 
         // 今いる惑星を設定
-        _nowPlanet = _planetManagerScript.SetNearPlanet(_myTransform.position);
+        _nowPlanet 
+            = _planetManagerScript.SetNearPlanet(
+                _myTransform.position,_nowPlanet,ref isChangePlanet);
 
         UpdateGravityDirection();
-
-        if(_nowPlanet != null)
+        
+        if (_nowPlanet != null && !isChangePlanet)
         {
             // 重力回転
             RotateGravity();
+
         }
-        else if(_nowPlanet == null)
+        else if (isChangePlanet)
         {
             RotateChangePlanet();
+
+            _planetChangeTime -= Time.deltaTime;
+
+            if(_planetChangeTime <= 0f)
+            {
+                IsChangePlanet = false;
+
+                _planetChangeTime = _planetChangeCoolTime;
+            }
         }
 
         // 重力落下
@@ -165,13 +202,20 @@ public class CharacterControlScript : MonoBehaviour
             // 惑星の方向を設定
             _gravityDirection
                 = (_nowPlanet.PlanetTransform.position - _myTransform.position).normalized;
+
+            _zeroGravityTime = _zeroGravityCoolTime;
         }
-        else if(_nowPlanet == null)
+        else if (_nowPlanet == null)
         {
-            // ブラックホールの方向を設定
-            _gravityDirection
-                = (_planetManagerScript.BlackHoleScript.PlanetTransform.position
-                - _myTransform.position).normalized;
+            _zeroGravityTime -= Time.deltaTime;
+
+            if (_zeroGravityTime <= 0f)
+            {
+                // ブラックホールの方向を設定
+                _gravityDirection
+                    = (_planetManagerScript.BlackHoleScript.PlanetTransform.position
+                    - _myTransform.position).normalized;
+            }
         }
     }
 
@@ -235,7 +279,8 @@ public class CharacterControlScript : MonoBehaviour
     {
         // 重力の回転を設定
         Quaternion gravityRotation
-            = Quaternion.FromToRotation(-_myTransform.up, _gravityDirection) * _myTransform.rotation;
+            = Quaternion.FromToRotation(-_myTransform.up, _gravityDirection)
+            * _myTransform.rotation;
 
         _myTransform.rotation = gravityRotation;
     }
@@ -247,10 +292,12 @@ public class CharacterControlScript : MonoBehaviour
     {
         if (_moveVector != Vector3.zero)
         {
-            Quaternion forwardRotate = Quaternion.LookRotation(_moveVector, -_gravityDirection);
+            Quaternion forwardRotate 
+                = Quaternion.LookRotation(_moveVector, -_gravityDirection);
 
             _child.rotation
-                = Quaternion.Slerp(_child.rotation, forwardRotate, _rotationSpeed * Time.deltaTime);
+                = Quaternion.Slerp(
+                    _child.rotation, forwardRotate, _rotationSpeed * Time.deltaTime);
         }
     }
 
@@ -263,7 +310,7 @@ public class CharacterControlScript : MonoBehaviour
         //Quaternion gravityRotation
         //	= Quaternion.LookRotation(_gravityDirection, _myTransform.up);
         Quaternion gravityRotation
-            = Quaternion.FromToRotation(_myTransform.forward, _gravityDirection)
+            = Quaternion.FromToRotation(-_myTransform.up, _gravityDirection)
             * _myTransform.rotation;
 
         _myTransform.rotation

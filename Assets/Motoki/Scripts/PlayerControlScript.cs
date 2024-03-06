@@ -64,8 +64,6 @@ public class PlayerControlScript : CharacterControlScript
 
         // タイマーの中間を設定
         _halfTime = _jumpBaseTime / HALF;
-
-        _planetManagerScript.SetNearPlanet(_myTransform.position);
     }
 
     public override void CharacterControl()
@@ -98,8 +96,6 @@ public class PlayerControlScript : CharacterControlScript
 
                 break;
         }
-
-        _planetManagerScript.SetNearPlanet(_myTransform.position);
     }
 
     /// <summary>

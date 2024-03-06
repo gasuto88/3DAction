@@ -46,7 +46,7 @@ public class PlanetManagerScript : MonoBehaviour
     /// <summary>
     /// 近い惑星を設定する処理
     /// </summary>
-    public PlanetScript SetNearPlanet(Vector3 position)
+    public PlanetScript SetNearPlanet(Vector3 position,PlanetScript nowScript,ref bool isChangePlanet)
     {
         PlanetScript scriptTemp = default;
 
@@ -68,6 +68,11 @@ public class PlanetManagerScript : MonoBehaviour
                 nearPlanetDistance = distance - _planetScripts[gravityIndex].PlanetRadius;
 
                 scriptTemp = _planetScripts[gravityIndex];
+
+                if(nowScript != scriptTemp)
+                {
+                    isChangePlanet = true;
+                }
             }
         }
 
@@ -85,6 +90,7 @@ public class PlanetManagerScript : MonoBehaviour
         float distance
             = DistanceToPlanet(
                 _blackHoleScript.PlanetTransform.position, position);
+
         if(distance < _blackHoleScript.PlanetRadius)
         {
             return true;
