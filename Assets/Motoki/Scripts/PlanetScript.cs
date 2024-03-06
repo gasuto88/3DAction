@@ -19,8 +19,10 @@ public class PlanetScript : MonoBehaviour
 
     #region フィールド変数
 
+    // 惑星の座標
     private Transform _planetTransform = default;
 
+    // 惑星の半径
     private float _planetRadius = 0f;
 
     #endregion
@@ -34,14 +36,14 @@ public class PlanetScript : MonoBehaviour
     #endregion
 
     /// <summary>
-    /// 更新前処理
+    /// 初期化処理
     /// </summary>
-    private void Start () 
-	{
+    private void Awake()
+    {
         // 惑星座標を設定
-		_planetTransform = transform;
+        _planetTransform = transform;
 
         // 惑星の半径を設定
         _planetRadius = _planetTransform.localScale.x / HALF;
-	}
+    }
 }

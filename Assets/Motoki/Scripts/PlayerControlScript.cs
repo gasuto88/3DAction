@@ -15,6 +15,9 @@ public class PlayerControlScript : CharacterControlScript
 {
     #region 定数
 
+    private const float DISTANCE_TO_GROUND = 2f;
+
+    // アニメーションの名前
     private const string JUMP_FLAG_NAME = "Jump";
 
     // 半分
@@ -28,7 +31,7 @@ public class PlayerControlScript : CharacterControlScript
     private float _jumpMaxPower = 0f;
 
     [SerializeField, Header("ジャンプ時間"), Range(0, 5)]
-    private float _jumpBaseTime = 0f;
+    private float _jumpCoolTime = 0f;
 
     // 最大ジャンプ力
     private float _jumpPower = 0f;
@@ -63,13 +66,19 @@ public class PlayerControlScript : CharacterControlScript
         base.Start();
 
         // タイマーの中間を設定
-        _halfTime = _jumpBaseTime / HALF;
+        _halfTime = _jumpCoolTime / HALF;
     }
 
     public override void CharacterControl()
     {
         base.CharacterControl();
 
+        if(_jumpState != JumpState.JUMP)
+        {
+            // 重力落下
+            FallInGravity();
+        }
+        
         // ジャンプ状態を取得
         _jumpState = JumpStateMachine();
 
@@ -99,6 +108,25 @@ public class PlayerControlScript : CharacterControlScript
     }
 
     /// <summary>
+    /// ジャンプ用着地判定
+    /// </summary>
+    private bool IsJumpGround()
+    {
+        // 惑星までの距離を設定
+        float distance
+            = _planetManagerScript.DistanceToPlanet(
+                _nowPlanet.transform.position,
+                _legTransform.position - _myTransform.up * DISTANCE_TO_GROUND);
+
+        if (distance <= _nowPlanet.PlanetRadius)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>
     /// ジャンプ初期化処理
     /// </summary>
     private void JumpInit()
@@ -108,7 +136,7 @@ public class PlayerControlScript : CharacterControlScript
         _jumpPower = 0f;
 
         // タイマーの初期化
-        _jumpTime = _jumpBaseTime;
+        _jumpTime = _jumpCoolTime;
     }
 
     /// <summary>
@@ -116,7 +144,8 @@ public class PlayerControlScript : CharacterControlScript
     /// </summary>
     private void Jump()
     {
-        _jumpPower = CalculationJumpPower(_jumpPower, _jumpMaxPower, _jumpTime, _jumpBaseTime);
+        _jumpPower 
+            = CalculationJumpPower(_jumpPower, _jumpMaxPower, _jumpTime, _jumpCoolTime);
 
         // 上方向に移動
         _myTransform.position
@@ -139,7 +168,7 @@ public class PlayerControlScript : CharacterControlScript
                 // 入力判定
                 // 着地判定
                 if (_inputScript.IsJumpButtonDown()
-                    && isGround)
+                    && _nowPlanet != null && IsJumpGround())
                 {
                     stateTemp = JumpState.START;
                 }
@@ -178,7 +207,7 @@ public class PlayerControlScript : CharacterControlScript
     }
 
     /// <summary>
-    /// ジャンプ力を計算する処理
+    /// ジャンプ計算処理
     /// </summary>
     /// <param name="jumpPower">ジャンプ力/param>
     /// <param name="jumpMaxPower">最大ジャンプ力</param>

@@ -52,11 +52,8 @@ public class CharacterControlScript : MonoBehaviour
     [SerializeField, Header("惑星変更時間"), Range(0, 10)]
     private float _planetChangeCoolTime = 0f;
 
-    [SerializeField, Header("足元の大きさ")]
-    private Vector3 _legSize = default;
-
-    [SerializeField]
-    private PlanetScript _startPlanet = default;
+    [SerializeField,Header("足の座標")]
+    protected Transform _legTransform = default;
 
     // 移動速度
     private float _moveSpeed = 0f;
@@ -85,12 +82,15 @@ public class CharacterControlScript : MonoBehaviour
     // 着地判定
     protected bool isGround = false;
 
+    // 惑星変更判定
     private bool isChangePlanet = false;
 
     // 現在いる惑星
-    private PlanetScript _nowPlanet = default;
+    protected PlanetScript _nowPlanet = default;
 
     protected PlanetManagerScript _planetManagerScript = default;
+
+    private BlackHoleScript _blackHoleScript = default;
 
     // 重力方向
     private Vector3 _gravityDirection = Vector3.down;
@@ -111,7 +111,7 @@ public class CharacterControlScript : MonoBehaviour
         _myTransform = transform;
 
         // 子を取得
-        _child = GameObject.FindGameObjectWithTag("Avatar").transform;
+        _child = _myTransform.Find("Avatar").transform;
 
         // キャラクターのアニメーションを取得
         _characterAnimator = GetComponent<Animator>();
@@ -121,23 +121,67 @@ public class CharacterControlScript : MonoBehaviour
         _planetManagerScript
             = GameObject.FindGameObjectWithTag("Planet")
             .GetComponent<PlanetManagerScript>();
+        _blackHoleScript
+            = GameObject.FindGameObjectWithTag("BlackHole")
+            .GetComponent<BlackHoleScript>();
 
+        // 無重力時間を設定
         _zeroGravityTime = _zeroGravityCoolTime;
 
+        // 惑星変更時間
         _planetChangeTime = _planetChangeCoolTime;
 
-        _nowPlanet = _startPlanet;
+        // 今いる惑星を設定
+        _nowPlanet = _planetManagerScript.SetNowPlanet(
+                _myTransform.position, _nowPlanet, ref isChangePlanet);
     }
 
+    /// <summary>
+    /// キャラクター制御処理
+    /// </summary>
     public virtual void CharacterControl()
     {
         // ブラックホール判定
-        if (_planetManagerScript.isCollisionBlackHole(_myTransform.position))
+        if (_blackHoleScript.isCollisionBlackHole(_myTransform.position))
         {
             Debug.LogError("死んだ");
             // GameManager側でゲームオーバー
             return;
         }
+  
+        // 今いる惑星を設定
+        _nowPlanet 
+            = _planetManagerScript.SetNowPlanet(
+                _myTransform.position,_nowPlanet,ref isChangePlanet);
+
+        if (_nowPlanet != null)
+        {
+            isGround = IsGround();
+        }
+
+        UpdateGravityDirection();
+        
+        if (_nowPlanet != null && !isChangePlanet)
+        {
+            // 重力回転
+            RotateGravity();
+        }
+        else if (isChangePlanet)
+        {
+            RotateChangePlanet();
+
+            _planetChangeTime -= Time.deltaTime;
+
+            if(_planetChangeTime <= 0f)
+            {
+                IsChangePlanet = false;
+
+                _planetChangeTime = _planetChangeCoolTime;
+            }
+        }      
+
+        // 進行方向を向く
+        LookForward();
 
         // 入力取得
         Vector2 moveInput = _inputScript.InputMove();
@@ -154,42 +198,6 @@ public class CharacterControlScript : MonoBehaviour
         // 移動
         _myTransform.position
             += _moveVector * _moveSpeed * Time.deltaTime;
-
-        // 着地判定を設定
-        isGround = IsGround();
-
-        // 今いる惑星を設定
-        _nowPlanet 
-            = _planetManagerScript.SetNearPlanet(
-                _myTransform.position,_nowPlanet,ref isChangePlanet);
-
-        UpdateGravityDirection();
-        
-        if (_nowPlanet != null && !isChangePlanet)
-        {
-            // 重力回転
-            RotateGravity();
-
-        }
-        else if (isChangePlanet)
-        {
-            RotateChangePlanet();
-
-            _planetChangeTime -= Time.deltaTime;
-
-            if(_planetChangeTime <= 0f)
-            {
-                IsChangePlanet = false;
-
-                _planetChangeTime = _planetChangeCoolTime;
-            }
-        }
-
-        // 重力落下
-        FallInGravity();
-
-        // 進行方向を向く
-        LookForward();
     }
 
     /// <summary>
@@ -213,8 +221,8 @@ public class CharacterControlScript : MonoBehaviour
             {
                 // ブラックホールの方向を設定
                 _gravityDirection
-                    = (_planetManagerScript.BlackHoleScript.PlanetTransform.position
-                    - _myTransform.position).normalized;
+                    = (_blackHoleScript.PlanetTransform.position
+                    - _myTransform.position).normalized * _blackHoleScript.Gravity;
             }
         }
     }
@@ -256,12 +264,13 @@ public class CharacterControlScript : MonoBehaviour
     /// <summary>
     /// 重力落下処理
     /// </summary>
-    private void FallInGravity()
+    protected void FallInGravity()
     {
         // 着地判定
         if (!isGround)
         {
-            _gravityPower = UpGravityPower(_gravityPower, _gravityMaxPower, _gravityMaxSpeed);
+            _gravityPower 
+                = UpGravityPower(_gravityPower, _gravityMaxPower, _gravityMaxSpeed);
 
             // 重力
             _myTransform.position += _gravityDirection * _gravityPower * Time.deltaTime;
@@ -277,7 +286,6 @@ public class CharacterControlScript : MonoBehaviour
     /// </summary>
     private void RotateGravity()
     {
-        // 重力の回転を設定
         Quaternion gravityRotation
             = Quaternion.FromToRotation(-_myTransform.up, _gravityDirection)
             * _myTransform.rotation;
@@ -302,13 +310,10 @@ public class CharacterControlScript : MonoBehaviour
     }
 
     /// <summary>
-    /// 惑星変更したときの回転処理
+    /// 惑星変更時の回転処理
     /// </summary>
     private void RotateChangePlanet()
     {
-        //// 重力の回転を設定
-        //Quaternion gravityRotation
-        //	= Quaternion.LookRotation(_gravityDirection, _myTransform.up);
         Quaternion gravityRotation
             = Quaternion.FromToRotation(-_myTransform.up, _gravityDirection)
             * _myTransform.rotation;
@@ -321,13 +326,18 @@ public class CharacterControlScript : MonoBehaviour
     /// <summary>
     /// 着地判定
     /// </summary>
-    public bool IsGround()
+    protected bool IsGround()
     {
-        if (Physics.CheckBox(_myTransform.position + _myTransform.up * 0.6f, _legSize,
-            _myTransform.rotation, LayerMask.GetMask(PLANET)))
+        // 惑星までの距離を設定
+        float distance
+            = _planetManagerScript.DistanceToPlanet(
+                _nowPlanet.transform.position, _legTransform.position);
+
+        if(distance <= _nowPlanet.PlanetRadius)
         {
             return true;
         }
+        
         return false;
     }
 

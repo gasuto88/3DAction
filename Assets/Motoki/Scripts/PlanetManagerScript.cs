@@ -18,35 +18,33 @@ public class PlanetManagerScript : MonoBehaviour
 
     private PlanetScript[] _planetScripts = default;
 
-    private BlackHoleScript _blackHoleScript = default;
-
     #endregion
 
     #region プロパティ
 
-    public PlanetScript[] PlanetScript { get => _planetScripts; set => _planetScripts = value; }
-
-    public BlackHoleScript BlackHoleScript { 
-        get => _blackHoleScript; set => _blackHoleScript = value; }
+    public PlanetScript[] PlanetScript {
+        get => _planetScripts; set => _planetScripts = value; }
 
     #endregion
 
     /// <summary>
-    /// 更新前処理
+    /// 初期化処理
     /// </summary>
-    private void Start()
+    private void Awake()
     {
         // 惑星を取得
         _planetScripts = GameObject.FindObjectsOfType<PlanetScript>();
-
-        _blackHoleScript 
-            = GameObject.FindGameObjectWithTag("BlackHole").GetComponent<BlackHoleScript>();
     }
 
     /// <summary>
-    /// 近い惑星を設定する処理
+    /// 今いる惑星を設定する処理
     /// </summary>
-    public PlanetScript SetNearPlanet(Vector3 position,PlanetScript nowScript,ref bool isChangePlanet)
+    /// <param name="position">現在座標</param>
+    /// <param name="nowScript">今いる惑星</param>
+    /// <param name="isChangePlanet">惑星変更判定</param>
+    /// <returns>今いる惑星</returns>
+    public PlanetScript SetNowPlanet(
+        Vector3 position,PlanetScript nowScript,ref bool isChangePlanet)
     {
         PlanetScript scriptTemp = default;
 
@@ -67,10 +65,12 @@ public class PlanetManagerScript : MonoBehaviour
                 // 惑星までの距離を設定
                 nearPlanetDistance = distance - _planetScripts[gravityIndex].PlanetRadius;
 
+                // 惑星を設定
                 scriptTemp = _planetScripts[gravityIndex];
 
                 if(nowScript != scriptTemp)
                 {
+                    // 惑星変更判定
                     isChangePlanet = true;
                 }
             }
@@ -78,26 +78,7 @@ public class PlanetManagerScript : MonoBehaviour
 
         return scriptTemp;
     }
-
-    /// <summary>
-    /// ブラックホールの衝突判定
-    /// </summary>
-    /// <param name="position">座標</param>
-    /// <returns>衝突判定</returns>
-    public bool isCollisionBlackHole(Vector3 position)
-    {
-        // 距離を計算
-        float distance
-            = DistanceToPlanet(
-                _blackHoleScript.PlanetTransform.position, position);
-
-        if(distance < _blackHoleScript.PlanetRadius)
-        {
-            return true;
-        }
-        return false;
-    }
-
+    
     //private void OnDrawGizmos()
     //{
     //    Gizmos.color = Color.red;
@@ -105,7 +86,7 @@ public class PlanetManagerScript : MonoBehaviour
     //    {
     //        Gizmos.DrawWireSphere(
     //            _planetScripts[i].transform.position, _planetScripts[i].PlanetRadius + _gravityScope);
-    //    }     
+    //    }
     //}
 
     /// <summary>

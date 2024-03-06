@@ -22,5 +22,12 @@ public class EnemyControlScript : CharacterControlScript
 
     #region 定数
     #endregion
- 
+
+    public override void CharacterControl()
+    {
+        base.CharacterControl();
+
+        FallInGravity();
+    }
+
 }
