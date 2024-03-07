@@ -15,8 +15,6 @@ public class GameManagerScript : MonoBehaviour
 
     private CharacterControlScript[] _characterControlScripts = default;
 
-	private CameraControlScript _controlCameraScript = default;
-
 	#endregion
 
 	/// <summary>
@@ -24,9 +22,6 @@ public class GameManagerScript : MonoBehaviour
     /// </summary>
 	private void Start () 
 	{
-		_controlCameraScript 
-			= GameObject.FindGameObjectWithTag("MainCamera").GetComponent<CameraControlScript>();
-		
         _characterControlScripts = GameObject.FindObjectsOfType<CharacterControlScript>();
     }
 	
@@ -39,8 +34,5 @@ public class GameManagerScript : MonoBehaviour
         {
             script.CharacterControl();
         }
-
-        _controlCameraScript.ControlCamera();
-		
 	}
 }
