@@ -37,9 +37,6 @@ public class CharacterControlScript : MonoBehaviour
     [SerializeField, Header("ブレーキ速度"), Range(0, 100)]
     private float _brakeSpeed = 0f;
 
-    [SerializeField, Header("重力の強さ"), Range(0, 100)]
-    private float _gravityMaxPower = 0f;
-
     [SerializeField, Header("重力が最大になるまでの速度"), Range(0, 100)]
     private float _gravityMaxSpeed = 0f;
 
@@ -270,7 +267,7 @@ public class CharacterControlScript : MonoBehaviour
         if (!isGround)
         {
             _gravityPower 
-                = UpGravityPower(_gravityPower, _gravityMaxPower, _gravityMaxSpeed);
+                = UpGravityPower(_gravityPower, _planetManagerScript.GravityMaxPower, _gravityMaxSpeed);
 
             // 重力
             _myTransform.position += _gravityDirection * _gravityPower * Time.deltaTime;

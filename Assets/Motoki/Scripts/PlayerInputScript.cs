@@ -8,6 +8,9 @@
 -------------------------------------------------*/
 using UnityEngine;
 
+/// <summary>
+/// プレイヤー入力クラス
+/// </summary>
 public class PlayerInputScript : InputScript 
 {
 

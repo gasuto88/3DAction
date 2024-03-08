@@ -13,6 +13,9 @@ public class PlanetManagerScript : MonoBehaviour
 
     #region フィールド変数
 
+    [SerializeField, Header("重力の強さ"), Range(0, 100)]
+    private float _gravityMaxPower = 0f;
+
     [SerializeField, Header("重力を受ける範囲"), Range(0, 1000)]
     private float _gravityScope = 0f;
 
@@ -22,8 +25,7 @@ public class PlanetManagerScript : MonoBehaviour
 
     #region プロパティ
 
-    public PlanetScript[] PlanetScript {
-        get => _planetScripts; set => _planetScripts = value; }
+    public float GravityMaxPower { get => _gravityMaxPower; set => _gravityMaxPower = value; }
 
     #endregion
 

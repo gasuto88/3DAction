@@ -9,7 +9,7 @@
 using UnityEngine;
 
 /// <summary>
-/// 入力判定クラス
+/// 入力クラス
 /// </summary>
 public abstract class InputScript : MonoBehaviour 
 {
