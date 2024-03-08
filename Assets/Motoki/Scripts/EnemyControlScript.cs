@@ -19,6 +19,8 @@ public class EnemyControlScript : CharacterControlScript
 
     private const int HALF = 2;
 
+    private const float MARGIN_DISTANCE = 10f;
+
     #endregion
 
     #region フィールド変数
@@ -39,16 +41,29 @@ public class EnemyControlScript : CharacterControlScript
 
     private Vector3 _targetDirection = default;
 
+    private Vector3 _randomPosition = default;
+
     // 追尾時間
-    private float _chaseTime = default;
+    private float _chaseTime = 0f;
+
+    private float _halfScale = 0f;
 
     private EnemyState _enemyState = EnemyState.PATROL;
+
+    private PatrolState _patrolState = PatrolState.START;
 
     private enum EnemyState
     {
         PATROL,
         CHASE,
         DEATH
+    }
+
+    private enum PatrolState
+    {
+        START,
+        MOVE,
+        END
     }
 
     #endregion
@@ -71,6 +86,8 @@ public class EnemyControlScript : CharacterControlScript
 
         // 追尾時間を設定
         _chaseTime = _chaseCoolTime;
+
+        _halfScale = _myTransform.localScale.y / HALF;
     }
 
     /// <summary>
@@ -159,7 +176,34 @@ public class EnemyControlScript : CharacterControlScript
     /// </summary>
     private void Patrol()
     {
+        Debug.Log(_patrolState);
+        switch (_patrolState)
+        {
+            // 開始状態
+            case PatrolState.START:
 
+                // ランダムな座標を設定
+                _randomPosition = RandomPlanetPosition();
+
+                _patrolState = PatrolState.MOVE;
+
+                break;
+            // 移動状態
+            case PatrolState.MOVE:
+
+
+                _targetDirection = (_randomPosition - _myTransform.position).normalized;
+
+                if (IsArriveTarget())
+                {
+                    _patrolState = PatrolState.START;
+                }
+
+                break;
+            // 終了状態
+            case PatrolState.END:
+                break;
+        }
     }
 
     /// <summary>
@@ -200,6 +244,52 @@ public class EnemyControlScript : CharacterControlScript
         //  視界判定
         if(cosHalf < innerProduct
             && targetDistance < _maxDistance)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// ランダムな方向を計算する処理
+    /// </summary>
+    /// <returns>ランダムな方向</returns>
+    private Vector3 RandomDirection()
+    {
+        Vector3 randomDirection = default;
+
+        randomDirection.x = Random.Range(-1, 1);
+        randomDirection.y = Random.Range(-1, 1);
+        randomDirection.z = Random.Range(-1, 1);
+
+        return randomDirection;
+    }
+
+    /// <summary>
+    /// 惑星上のランダムな座標を計算する処理
+    /// </summary>
+    /// <returns>ランダムな座標</returns>
+    private Vector3 RandomPlanetPosition()
+    {
+        Vector3 randomPosition 
+            = RandomDirection().normalized * (_nowPlanet.PlanetRadius + _halfScale);
+
+        return randomPosition;
+    }
+
+    /// <summary>
+    /// 目標地点の到着判定
+    /// </summary>
+    /// <returns>到着判定</returns>
+    private bool IsArriveTarget()
+    {
+        if((_randomPosition.x < _myTransform.position.x + MARGIN_DISTANCE
+            && _myTransform.position.x - MARGIN_DISTANCE < _randomPosition.x)
+            && (_randomPosition.y < _myTransform.position.y + MARGIN_DISTANCE
+            && _myTransform.position.y - MARGIN_DISTANCE < _randomPosition.y)
+            && (_randomPosition.z < _myTransform.position.z + MARGIN_DISTANCE
+            && _myTransform.position.z - MARGIN_DISTANCE < _randomPosition.z))
         {
             return true;
         }
