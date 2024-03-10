@@ -66,7 +66,7 @@ public class CharacterControlScript : MonoBehaviour
     private Vector3 _moveVector = default;
 
     // プレイヤーの子
-    private Transform _child = default;
+    protected Transform _child = default;
 
     // キャラクターのアニメーション
     protected Animator _characterAnimator = default;

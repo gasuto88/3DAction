@@ -19,7 +19,7 @@ public class EnemyControlScript : CharacterControlScript
 
     private const int HALF = 2;
 
-    private const float MARGIN_DISTANCE = 10f;
+    private const float MARGIN_DISTANCE = 5f;
 
     #endregion
 
@@ -98,6 +98,8 @@ public class EnemyControlScript : CharacterControlScript
         base.CharacterControl();
 
         _enemyState = EnemyStateMachine();
+
+        Debug.Log(_enemyState);
 
         switch (_enemyState)
         {
@@ -191,11 +193,11 @@ public class EnemyControlScript : CharacterControlScript
             // 移動状態
             case PatrolState.MOVE:
 
-
                 _targetDirection = (_randomPosition - _myTransform.position).normalized;
-
+                
                 if (IsArriveTarget())
                 {
+                    Debug.Log("ついた");
                     _patrolState = PatrolState.START;
                 }
 
@@ -212,7 +214,7 @@ public class EnemyControlScript : CharacterControlScript
     private void Chase()
     {
         // 相手の方向を設定
-        _targetDirection = _target.position - _myTransform.position;        
+        _targetDirection = (_target.position - _myTransform.position).normalized;        
     }
 
     /// <summary>
@@ -239,7 +241,7 @@ public class EnemyControlScript : CharacterControlScript
         float cosHalf = Mathf.Cos(_viewAngle / HALF * Mathf.Deg2Rad);
 
         // 内積計算
-        float innerProduct = Vector3.Dot(_myTransform.forward, targetDirection.normalized);
+        float innerProduct = Vector3.Dot(_child.forward, targetDirection.normalized);
 
         //  視界判定
         if(cosHalf < innerProduct
@@ -257,7 +259,7 @@ public class EnemyControlScript : CharacterControlScript
     /// <returns>ランダムな方向</returns>
     private Vector3 RandomDirection()
     {
-        Vector3 randomDirection = default;
+        Vector3 randomDirection = Vector3.zero;
 
         randomDirection.x = Random.Range(-1, 1);
         randomDirection.y = Random.Range(-1, 1);
@@ -273,7 +275,8 @@ public class EnemyControlScript : CharacterControlScript
     private Vector3 RandomPlanetPosition()
     {
         Vector3 randomPosition 
-            = RandomDirection().normalized * (_nowPlanet.PlanetRadius + _halfScale);
+            = _nowPlanet.PlanetTransform.position 
+            + RandomDirection() * (_nowPlanet.PlanetRadius + _halfScale);
 
         return randomPosition;
     }
@@ -284,12 +287,12 @@ public class EnemyControlScript : CharacterControlScript
     /// <returns>到着判定</returns>
     private bool IsArriveTarget()
     {
-        if((_randomPosition.x < _myTransform.position.x + MARGIN_DISTANCE
-            && _myTransform.position.x - MARGIN_DISTANCE < _randomPosition.x)
-            && (_randomPosition.y < _myTransform.position.y + MARGIN_DISTANCE
-            && _myTransform.position.y - MARGIN_DISTANCE < _randomPosition.y)
-            && (_randomPosition.z < _myTransform.position.z + MARGIN_DISTANCE
-            && _myTransform.position.z - MARGIN_DISTANCE < _randomPosition.z))
+        if((_randomPosition.x - MARGIN_DISTANCE < _myTransform.position.x
+            && _myTransform.position.x < _randomPosition.x + MARGIN_DISTANCE)
+            && (_randomPosition.y - MARGIN_DISTANCE < _myTransform.position.y
+            && _myTransform.position.y < _randomPosition.y + MARGIN_DISTANCE)
+            && (_randomPosition.z - MARGIN_DISTANCE < _myTransform.position.z
+            && _myTransform.position.z < _randomPosition.z + MARGIN_DISTANCE))
         {
             return true;
         }
