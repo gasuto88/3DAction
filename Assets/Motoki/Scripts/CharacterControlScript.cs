@@ -139,7 +139,7 @@ public class CharacterControlScript : MonoBehaviour
     public virtual void CharacterControl()
     {
         // ブラックホール判定
-        if (_blackHoleScript.isCollisionBlackHole(_myTransform.position))
+        if (_blackHoleScript.IsCollisionBlackHole(_myTransform.position))
         {
             Debug.LogError("死んだ");
             // GameManager側でゲームオーバー

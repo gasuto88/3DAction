@@ -19,7 +19,7 @@ public class EnemyControlScript : CharacterControlScript
 
     private const int HALF = 2;
 
-    private const float MARGIN_DISTANCE = 5f;
+    private const float MARGIN_DISTANCE = 2f;
 
     #endregion
 
@@ -55,8 +55,7 @@ public class EnemyControlScript : CharacterControlScript
     private enum EnemyState
     {
         PATROL,
-        CHASE,
-        DEATH
+        CHASE      
     }
 
     private enum PatrolState
@@ -99,8 +98,6 @@ public class EnemyControlScript : CharacterControlScript
 
         _enemyState = EnemyStateMachine();
 
-        Debug.Log(_enemyState);
-
         switch (_enemyState)
         {
             // 探索状態
@@ -113,12 +110,6 @@ public class EnemyControlScript : CharacterControlScript
             case EnemyState.CHASE:
 
                 Chase();
-
-                break;
-            // 死亡状態
-            case EnemyState.DEATH:
-
-                Death();
 
                 break;
         }
@@ -152,7 +143,7 @@ public class EnemyControlScript : CharacterControlScript
                 // 相手の距離
                 float targetDistance = _targetDirection.magnitude;
 
-                _chaseTime -= Time.deltaTime;
+                //_chaseTime -= Time.deltaTime;
 
                 // 時間経過したら
                 // 距離が離れたら
@@ -165,9 +156,6 @@ public class EnemyControlScript : CharacterControlScript
                 }
 
                 break;
-            // 死亡状態
-            case EnemyState.DEATH:
-                break;
         }
 
         return stateTemp;
@@ -178,17 +166,19 @@ public class EnemyControlScript : CharacterControlScript
     /// </summary>
     private void Patrol()
     {
-        Debug.Log(_patrolState);
+        Debug.LogWarning(_patrolState);
         switch (_patrolState)
         {
             // 開始状態
             case PatrolState.START:
 
-                // ランダムな座標を設定
-                _randomPosition = RandomPlanetPosition();
+                if (_nowPlanet != null)
+                {
+                    // ランダムな座標を設定
+                    _randomPosition = RandomPlanetPosition();
 
-                _patrolState = PatrolState.MOVE;
-
+                    _patrolState = PatrolState.MOVE;
+                }
                 break;
             // 移動状態
             case PatrolState.MOVE:
@@ -198,12 +188,17 @@ public class EnemyControlScript : CharacterControlScript
                 if (IsArriveTarget())
                 {
                     Debug.Log("ついた");
-                    _patrolState = PatrolState.START;
+                    _patrolState = PatrolState.END;
                 }
 
                 break;
             // 終了状態
             case PatrolState.END:
+
+                _targetDirection = Vector3.zero;
+
+                _patrolState = PatrolState.START;
+
                 break;
         }
     }
@@ -261,10 +256,21 @@ public class EnemyControlScript : CharacterControlScript
     {
         Vector3 randomDirection = Vector3.zero;
 
-        randomDirection.x = Random.Range(-1, 1);
-        randomDirection.y = Random.Range(-1, 1);
-        randomDirection.z = Random.Range(-1, 1);
+        for (int i = 0; randomDirection == Vector3.zero; i++)
+        {         
+            if(50 < i)
+            {
+                randomDirection = Vector3.one;
+                break;
+            }
+            randomDirection.x = Random.Range(-1, 1);
+            randomDirection.y = Random.Range(-1, 1);
+            randomDirection.z = Random.Range(-1, 1);
+        }
 
+
+        Debug.Log("方向"+randomDirection + ":"+ randomDirection.normalized);
+        randomDirection = randomDirection.normalized;
         return randomDirection;
     }
 
@@ -274,11 +280,23 @@ public class EnemyControlScript : CharacterControlScript
     /// <returns>ランダムな座標</returns>
     private Vector3 RandomPlanetPosition()
     {
+        
         Vector3 randomPosition 
             = _nowPlanet.PlanetTransform.position 
-            + RandomDirection() * (_nowPlanet.PlanetRadius + _halfScale);
+            + RandomDirection() * (_nowPlanet.PlanetRadius);
 
+        Debug.Log("長さ" + randomPosition.magnitude);
         return randomPosition;
+    }
+
+    private void OnDrawGizmos()
+    {
+
+        Gizmos.color = Color.red;
+        if (_randomPosition != null)
+        {
+            Gizmos.DrawCube(_randomPosition, new Vector3(2,2,2));
+        }
     }
 
     /// <summary>
@@ -287,6 +305,7 @@ public class EnemyControlScript : CharacterControlScript
     /// <returns>到着判定</returns>
     private bool IsArriveTarget()
     {
+        // 目標地点に入ったら
         if((_randomPosition.x - MARGIN_DISTANCE < _myTransform.position.x
             && _myTransform.position.x < _randomPosition.x + MARGIN_DISTANCE)
             && (_randomPosition.y - MARGIN_DISTANCE < _myTransform.position.y

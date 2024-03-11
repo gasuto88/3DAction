@@ -14,12 +14,17 @@ using UnityEngine;
 public class EnemyInputScript : InputScript
 {
 
+    #region 定数
+
+    private const float MARGIN_DIRECTION = 0.02f;
+
+    #endregion
+
     #region フィールド変数
 
     private EnemyControlScript _enemyControlScript = default;
 
     #endregion
-
 
     /// <summary>
     /// 更新前処理
@@ -37,12 +42,13 @@ public class EnemyInputScript : InputScript
     public override Vector2 InputMove()
     {
         // 相手の方向を設定
-        Vector3 targetDirection = UnifyOneNumber(_enemyControlScript.TargetDirection);
+        Vector3 targetDirection = _enemyControlScript.TargetDirection;//UnifyOneNumber(_enemyControlScript.TargetDirection);
+
+        Vector3 localDirection = transform.InverseTransformDirection(targetDirection);
         
         // Vector2に変換
-        Vector2 inputDirection = (Vector2.right * targetDirection.z) + (Vector2.up * targetDirection.x);
+        Vector2 inputDirection = (Vector2.right * localDirection.z) + (Vector2.up * localDirection.x);
 
-        Debug.LogError(inputDirection);
         return inputDirection;
     }
 
@@ -51,29 +57,15 @@ public class EnemyInputScript : InputScript
         return false;
     }
 
-    /// <summary>
-    /// 数字を１に統一する処理
-    /// </summary>
-    /// <param name="number"></param>
-    /// <returns></returns>
-    private Vector3 UnifyOneNumber(Vector3 direction)
-    {
-        if(direction.x < 0)
-        {
-            direction.x = -1;
-        }
-        else if(0 < direction.x)
-        {
-            direction.x = 1;
-        }
-        if(direction.z < 0)
-        {
-            direction.z = -1;
-        }
-        else if(0 < direction.z)
-        {
-            direction.z = 1;
-        }
-        return direction;
-    }
+    ///// <summary>
+    ///// 
+    ///// </summary>
+    ///// <param name="number"></param>
+    ///// <returns></returns>
+    //private Vector3 UnifyOneNumber(Vector3 direction)
+    //{
+        
+
+    //    return direction;
+    //}
 }

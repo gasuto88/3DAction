@@ -53,7 +53,7 @@ public class BlackHoleScript : MonoBehaviour
     /// </summary>
     /// <param name="position">座標</param>
     /// <returns>衝突判定</returns>
-    public bool isCollisionBlackHole(Vector3 position)
+    public bool IsCollisionBlackHole(Vector3 position)
     {
         // 距離を計算
         float distance
