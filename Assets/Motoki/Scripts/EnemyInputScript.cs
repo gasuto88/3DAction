@@ -42,7 +42,7 @@ public class EnemyInputScript : InputScript
     public override Vector2 InputMove()
     {
         // 相手の方向を設定
-        Vector3 targetDirection = _enemyControlScript.TargetDirection;//UnifyOneNumber(_enemyControlScript.TargetDirection);
+        Vector3 targetDirection = _enemyControlScript.TargetDirection;
 
         Vector3 localDirection = transform.InverseTransformDirection(targetDirection);
         
@@ -56,16 +56,4 @@ public class EnemyInputScript : InputScript
     {
         return false;
     }
-
-    ///// <summary>
-    ///// 
-    ///// </summary>
-    ///// <param name="number"></param>
-    ///// <returns></returns>
-    //private Vector3 UnifyOneNumber(Vector3 direction)
-    //{
-        
-
-    //    return direction;
-    //}
 }

@@ -52,6 +52,9 @@ public class CharacterControlScript : MonoBehaviour
     [SerializeField,Header("足の座標")]
     protected Transform _legTransform = default;
 
+    [SerializeField,Header("キャラクターのHP"),Range(0,5)]
+    protected int _hp = 0;
+
     // 移動速度
     private float _moveSpeed = 0f;
 
@@ -103,7 +106,7 @@ public class CharacterControlScript : MonoBehaviour
     /// <summary>
     /// 更新前処理
     /// </summary>
-    protected virtual void Start()
+    private void Start()
     {
         _myTransform = transform;
 
@@ -131,7 +134,14 @@ public class CharacterControlScript : MonoBehaviour
         // 今いる惑星を設定
         _nowPlanet = _planetManagerScript.SetNowPlanet(
                 _myTransform.position, _nowPlanet, ref isChangePlanet);
+
+        OnInitialize();
     }
+
+    /// <summary>
+    /// 初期化処理
+    /// </summary>
+    protected virtual void OnInitialize(){ }
 
     /// <summary>
     /// キャラクター制御処理
@@ -196,6 +206,8 @@ public class CharacterControlScript : MonoBehaviour
         _myTransform.position
             += _moveVector * _moveSpeed * Time.deltaTime;
     }
+
+    public virtual void DownHp(int damage) { }
 
     /// <summary>
     /// 重力方向を更新する処理

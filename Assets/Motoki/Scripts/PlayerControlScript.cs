@@ -17,6 +17,8 @@ public class PlayerControlScript : CharacterControlScript
 
     private const float DISTANCE_TO_GROUND = 2f;
 
+    private const string ENEMY_LAYER_NAME = "Enemy";
+
     // アニメーションの名前
     private const string JUMP_FLAG_NAME = "Jump";
 
@@ -33,6 +35,21 @@ public class PlayerControlScript : CharacterControlScript
     [SerializeField, Header("ジャンプ時間"), Range(0, 5)]
     private float _jumpCoolTime = 0f;
 
+    [SerializeField, Header("当たり判定の大きさ")]
+    private Vector3 _halfSize = default;
+
+    [SerializeField, Header("点滅時間"), Range(0, 10)]
+    private float _flashCoolTime = 0f;
+
+    [SerializeField, Header("点滅間隔時間"), Range(0, 10)]
+    private float _flashIntervalCoolTime = 0f;
+
+    [SerializeField,Header("ジャンプダメージ"),Range(0,10)]
+    private int _jumpDamage = 0;
+
+    [SerializeField,Header("衝突で受けるダメージ"),Range(0,10)]
+    private int _collisionDamage = 0;
+
     // 最大ジャンプ力
     private float _jumpPower = 0f;
 
@@ -42,9 +59,27 @@ public class PlayerControlScript : CharacterControlScript
     // タイマーの中間
     private float _halfTime = 0f;
 
-    protected JumpState _jumpState = JumpState.START;
+    // 点滅時間
+    private float _flashTime = 0f;
 
-    public enum JumpState
+    // 点滅間隔時間
+    private float _flashIntervalTime = 0f;
+
+    // 衝突判定
+    private bool isCollision = false;
+
+    // ダメージ判定
+    private bool isDamage = false;
+
+    private TimerScript _timerScript = default;
+
+    private SkinnedMeshRenderer _playerMeshRenderer = default;
+
+    private JumpState _jumpState = JumpState.START;
+
+    private DamageState _damageState = DamageState.OFF;
+
+    private enum JumpState
     {
         IDLE,
         START,
@@ -52,35 +87,47 @@ public class PlayerControlScript : CharacterControlScript
         END
     }
 
-    #endregion
-
-    #region プロパティ
-
-    public JumpState JumpType { get => _jumpState; set => _jumpState = value; }
-
-    #endregion
-
-
-    protected override void Start()
+    private enum DamageState
     {
-        base.Start();
+        ON,
+        OFF
+    }
 
+    #endregion
+
+    protected override void OnInitialize()
+    {
         // タイマーの中間を設定
         _halfTime = _jumpCoolTime / HALF;
+
+        _flashTime = _flashCoolTime;
+
+        _flashIntervalTime = _flashIntervalCoolTime;
+
+        _playerMeshRenderer = _myTransform.Find("Player(Mesh)").GetComponent<SkinnedMeshRenderer>();
     }
 
     public override void CharacterControl()
     {
         base.CharacterControl();
 
-        if(_jumpState != JumpState.JUMP)
+        if (_jumpState != JumpState.JUMP)
         {
             // 重力落下
             FallInGravity();
         }
-        
+
         // ジャンプ状態を取得
         _jumpState = JumpStateMachine();
+
+        CollisionEnemyAngle();
+
+        // ダメージ判定
+        if (isDamage)
+        {
+            // ダメージ点滅処理
+            FlashingDamage();
+        }
 
         switch (_jumpState)
         {
@@ -101,6 +148,8 @@ public class PlayerControlScript : CharacterControlScript
             // 終了状態
             case JumpState.END:
 
+                isCollision = false;
+
                 _characterAnimator.SetBool(JUMP_FLAG_NAME, false);
 
                 break;
@@ -108,8 +157,81 @@ public class PlayerControlScript : CharacterControlScript
     }
 
     /// <summary>
+    /// 衝突対象を求める処理
+    /// </summary>
+    /// <returns>衝突対象</returns>
+    private Transform CollisionEnemyDirection()
+    {
+        Collider[] enemyColliders
+            = Physics.OverlapBox(_myTransform.position + _myTransform.up * 1.6f, _halfSize,
+            _myTransform.rotation, LayerMask.GetMask(ENEMY_LAYER_NAME));
+
+        if (0 < enemyColliders.Length)
+        {
+            return enemyColliders[0].transform;
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    /// 衝突処理
+    /// </summary>
+    private void CollisionEnemyAngle()
+    {
+        // 衝突方向を設定
+        Transform enemyTransform = CollisionEnemyDirection();
+
+        // 衝突判定
+        if (!isCollision 
+            && enemyTransform != null)
+        {
+            isCollision = true;
+
+            // 衝突方向を計算
+            Vector3 enemyDirection
+                = (enemyTransform.position - _myTransform.position).normalized;
+
+            // 衝突角度を計算
+            float collisionAngle = Vector3.Angle(_myTransform.up, enemyDirection);
+
+            // 踏みつけ判定
+            if (80f < collisionAngle)
+            {
+                _jumpState = JumpState.START;
+                
+                enemyTransform.GetComponent<CharacterControlScript>().DownHp(_jumpDamage);                
+            }
+            // ダメージ判定
+            else
+            {
+                DownHp(_collisionDamage);
+                // ダメージ判定
+                isDamage = true;
+            }
+        }
+    }
+
+    public override void DownHp(int damage)
+    {
+        _hp -= damage;
+
+        if(_hp <= 0)
+        {
+
+        }
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireCube(transform.position + transform.up * 1.6f, _halfSize);
+    }
+
+    /// <summary>
     /// ジャンプ用着地判定
     /// </summary>
+    /// <returns>着地判定</returns>
     private bool IsJumpGround()
     {
         // 惑星までの距離を設定
@@ -144,7 +266,7 @@ public class PlayerControlScript : CharacterControlScript
     /// </summary>
     private void Jump()
     {
-        _jumpPower 
+        _jumpPower
             = CalculationJumpPower(_jumpPower, _jumpMaxPower, _jumpTime, _jumpCoolTime);
 
         // 上方向に移動
@@ -201,7 +323,7 @@ public class PlayerControlScript : CharacterControlScript
 
                 break;
         }
-        
+
         // ジャンプ状態
         return stateTemp;
     }
@@ -235,5 +357,53 @@ public class PlayerControlScript : CharacterControlScript
             jumpPower = 0f;
         }
         return jumpPower;
+    }
+
+    /// <summary>
+    /// ダメージ点滅処理
+    /// </summary>
+    private void FlashingDamage()
+    {
+        _flashIntervalTime -= Time.deltaTime;
+
+        switch (_damageState)
+        {
+            case DamageState.ON:
+
+                _playerMeshRenderer.enabled = true;
+
+                if(_flashIntervalTime <= 0f)
+                {
+                    _flashIntervalTime = _flashIntervalCoolTime;
+
+                    _damageState = DamageState.OFF;
+                }
+
+                break;
+
+            case DamageState.OFF:
+
+                _playerMeshRenderer.enabled = false;
+
+                if(_flashIntervalTime <= 0f)
+                {
+                    _flashIntervalTime = _flashIntervalCoolTime;
+
+                    _damageState = DamageState.ON;
+                }
+
+                break;
+        }
+
+        _flashTime -= Time.deltaTime;
+
+        if(_flashTime <= 0f)
+        {
+            _flashTime = _flashCoolTime;
+            _playerMeshRenderer.enabled = true; 
+            _damageState = DamageState.OFF;
+            isDamage = false;
+            isCollision = false;
+        }
     }
 }

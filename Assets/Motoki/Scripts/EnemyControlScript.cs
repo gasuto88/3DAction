@@ -19,7 +19,10 @@ public class EnemyControlScript : CharacterControlScript
 
     private const int HALF = 2;
 
-    private const float MARGIN_DISTANCE = 2f;
+    private const float MARGIN_DISTANCE = 1f;
+
+    // アニメーションの名前
+    private const string DAMAGE_FLAG_NAME = "Damage";
 
     #endregion
 
@@ -37,7 +40,10 @@ public class EnemyControlScript : CharacterControlScript
     [SerializeField, Header("追尾距離"), Range(0, 100)]
     private float _chaseDistance = 0f;
 
-    private Transform _target = default;
+    [SerializeField,Header("待機時間"),Range(0,100)]
+    private float _idleCoolTime = 0f;
+
+    private Transform _playerTransform = default;
 
     private Vector3 _targetDirection = default;
 
@@ -46,7 +52,8 @@ public class EnemyControlScript : CharacterControlScript
     // 追尾時間
     private float _chaseTime = 0f;
 
-    private float _halfScale = 0f;
+    // 待機時間
+    private float _idleTime = 0f;
 
     private EnemyState _enemyState = EnemyState.PATROL;
 
@@ -54,6 +61,7 @@ public class EnemyControlScript : CharacterControlScript
 
     private enum EnemyState
     {
+        IDLE,
         PATROL,
         CHASE      
     }
@@ -73,20 +81,16 @@ public class EnemyControlScript : CharacterControlScript
 
     #endregion
 
-    /// <summary>
-    /// 更新前処理
-    /// </summary>
-    protected override void Start()
+    protected override void OnInitialize()
     {
-        base.Start();
-
-        // プレイヤー取得
-        _target = GameObject.FindGameObjectWithTag("Player").transform;
+        // プレイヤーを取得
+        _playerTransform = GameObject.FindGameObjectWithTag("Player").transform;
 
         // 追尾時間を設定
         _chaseTime = _chaseCoolTime;
 
-        _halfScale = _myTransform.localScale.y / HALF;
+        // 待機時間を設定
+        _idleTime = _idleCoolTime;
     }
 
     /// <summary>
@@ -100,6 +104,13 @@ public class EnemyControlScript : CharacterControlScript
 
         switch (_enemyState)
         {
+            // 待機状態
+            case EnemyState.IDLE:
+
+                _targetDirection = Vector3.zero;
+
+                break;
+
             // 探索状態
             case EnemyState.PATROL:
 
@@ -109,8 +120,9 @@ public class EnemyControlScript : CharacterControlScript
             // 追尾状態
             case EnemyState.CHASE:
 
-                Chase();
-
+                // 相手の方向を設定
+                _targetDirection = (_playerTransform.position - _myTransform.position).normalized;
+                
                 break;
         }
 
@@ -125,15 +137,41 @@ public class EnemyControlScript : CharacterControlScript
     {
         EnemyState stateTemp = _enemyState;
 
+        //  視界判定
+        if (IsVision())
+        {
+            stateTemp = EnemyState.CHASE;
+
+            return stateTemp;
+        }
+
         switch (_enemyState)
         {
+            // 待機状態
+            case EnemyState.IDLE:
+
+                _idleTime -= Time.deltaTime;
+
+                // 時間経過したら
+                if(_idleTime <= 0f)
+                {
+                    // 経過時間を初期化
+                    _idleTime = _idleCoolTime;
+
+                    stateTemp = EnemyState.PATROL;
+                }
+
+                break;
+
             // 探索状態
             case EnemyState.PATROL:
 
-                //  視界判定
-                if (IsVision())
+                // 到着判定
+                if (IsArriveTarget())
                 {
-                    stateTemp = EnemyState.CHASE;
+                    _patrolState = PatrolState.START;
+
+                    stateTemp = EnemyState.IDLE;
                 }
 
                 break;
@@ -143,7 +181,7 @@ public class EnemyControlScript : CharacterControlScript
                 // 相手の距離
                 float targetDistance = _targetDirection.magnitude;
 
-                //_chaseTime -= Time.deltaTime;
+                _chaseTime -= Time.deltaTime;
 
                 // 時間経過したら
                 // 距離が離れたら
@@ -166,7 +204,6 @@ public class EnemyControlScript : CharacterControlScript
     /// </summary>
     private void Patrol()
     {
-        Debug.LogWarning(_patrolState);
         switch (_patrolState)
         {
             // 開始状態
@@ -184,40 +221,9 @@ public class EnemyControlScript : CharacterControlScript
             case PatrolState.MOVE:
 
                 _targetDirection = (_randomPosition - _myTransform.position).normalized;
-                
-                if (IsArriveTarget())
-                {
-                    Debug.Log("ついた");
-                    _patrolState = PatrolState.END;
-                }
-
-                break;
-            // 終了状態
-            case PatrolState.END:
-
-                _targetDirection = Vector3.zero;
-
-                _patrolState = PatrolState.START;
 
                 break;
         }
-    }
-
-    /// <summary>
-    /// 追尾処理
-    /// </summary>
-    private void Chase()
-    {
-        // 相手の方向を設定
-        _targetDirection = (_target.position - _myTransform.position).normalized;        
-    }
-
-    /// <summary>
-    /// 死亡処理
-    /// </summary>
-    private void Death()
-    {
-
     }
 
     /// <summary>
@@ -227,7 +233,7 @@ public class EnemyControlScript : CharacterControlScript
     private bool IsVision()
     {
         //  相手の方向を設定
-        Vector3 targetDirection = _target.position - _myTransform.position;
+        Vector3 targetDirection = _playerTransform.position - _myTransform.position;
 
         // 相手までの距離を設定
         float targetDistance = targetDirection.magnitude;
@@ -263,14 +269,13 @@ public class EnemyControlScript : CharacterControlScript
                 randomDirection = Vector3.one;
                 break;
             }
-            randomDirection.x = Random.Range(-1, 1);
-            randomDirection.y = Random.Range(-1, 1);
-            randomDirection.z = Random.Range(-1, 1);
+            randomDirection.x = Random.Range(-1f, 1f);
+            randomDirection.y = Random.Range(-1f, 1f);
+            randomDirection.z = Random.Range(-1f, 1f);
         }
 
-
-        Debug.Log("方向"+randomDirection + ":"+ randomDirection.normalized);
         randomDirection = randomDirection.normalized;
+
         return randomDirection;
     }
 
@@ -285,7 +290,6 @@ public class EnemyControlScript : CharacterControlScript
             = _nowPlanet.PlanetTransform.position 
             + RandomDirection() * (_nowPlanet.PlanetRadius);
 
-        Debug.Log("長さ" + randomPosition.magnitude);
         return randomPosition;
     }
 
@@ -295,7 +299,7 @@ public class EnemyControlScript : CharacterControlScript
         Gizmos.color = Color.red;
         if (_randomPosition != null)
         {
-            Gizmos.DrawCube(_randomPosition, new Vector3(2,2,2));
+            Gizmos.DrawCube(_randomPosition, Vector3.one);
         }
     }
 
@@ -317,6 +321,16 @@ public class EnemyControlScript : CharacterControlScript
         }
 
         return false;
+    }
+
+    public override void DownHp(int damage)
+    {
+        _hp -= damage;
+
+        if (_hp <= 0)
+        {
+            _characterAnimator.SetBool(DAMAGE_FLAG_NAME, true);
+        }
     }
 
 }
