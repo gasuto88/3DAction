@@ -208,7 +208,7 @@ public class EnemyControlScript : CharacterControlScript
         {
             // 開始状態
             case PatrolState.START:
-
+                
                 if (_nowPlanet != null)
                 {
                     // ランダムな座標を設定
@@ -323,6 +323,10 @@ public class EnemyControlScript : CharacterControlScript
         return false;
     }
 
+    /// <summary>
+    /// HPを減らす処理
+    /// </summary>
+    /// <param name="damage">ダメージ</param>
     public override void DownHp(int damage)
     {
         _hp -= damage;

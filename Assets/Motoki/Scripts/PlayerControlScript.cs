@@ -71,8 +71,6 @@ public class PlayerControlScript : CharacterControlScript
     // ダメージ判定
     private bool isDamage = false;
 
-    private TimerScript _timerScript = default;
-
     private SkinnedMeshRenderer _playerMeshRenderer = default;
 
     private JumpState _jumpState = JumpState.START;
@@ -212,6 +210,10 @@ public class PlayerControlScript : CharacterControlScript
         }
     }
 
+    /// <summary>
+    /// HPを減らす処理
+    /// </summary>
+    /// <param name="damage">ダメージ</param>
     public override void DownHp(int damage)
     {
         _hp -= damage;
