@@ -161,7 +161,7 @@ public class PlayerControlScript : CharacterControlScript
     private Transform CollisionEnemyDirection()
     {
         Collider[] enemyColliders
-            = Physics.OverlapBox(_myTransform.position + _myTransform.up * 1.6f, _halfSize,
+            = Physics.OverlapBox(_myTransform.position + _myTransform.up * 1.5f, _halfSize,
             _myTransform.rotation, LayerMask.GetMask(ENEMY_LAYER_NAME));
 
         if (0 < enemyColliders.Length)
@@ -188,17 +188,17 @@ public class PlayerControlScript : CharacterControlScript
 
             // 衝突方向を計算
             Vector3 enemyDirection
-                = (enemyTransform.position - _myTransform.position).normalized;
+                = (enemyTransform.position - _legTransform.position).normalized;
 
             // 衝突角度を計算
             float collisionAngle = Vector3.Angle(_myTransform.up, enemyDirection);
 
             // 踏みつけ判定
-            if (80f < collisionAngle)
+            if (110f < collisionAngle)
             {
                 _jumpState = JumpState.START;
-                
-                enemyTransform.GetComponent<CharacterControlScript>().DownHp(_jumpDamage);                
+
+                enemyTransform.GetComponent<CharacterControlScript>().DownHp(_jumpDamage);
             }
             // ダメージ判定
             else
@@ -227,7 +227,7 @@ public class PlayerControlScript : CharacterControlScript
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.red;
-        Gizmos.DrawWireCube(transform.position + transform.up * 1.6f, _halfSize);
+        Gizmos.DrawWireCube(transform.position + transform.up * 0.5f, _halfSize);
     }
 
     /// <summary>

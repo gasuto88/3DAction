@@ -54,6 +54,6 @@ public class EnemyInputScript : InputScript
 
     public override bool IsJumpButtonDown()
     {
-        return false;
+        return _enemyControlScript.IsJump;
     }
 }

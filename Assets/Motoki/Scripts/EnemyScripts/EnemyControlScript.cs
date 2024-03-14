@@ -55,6 +55,8 @@ public class EnemyControlScript : CharacterControlScript
     // 待機時間
     private float _idleTime = 0f;
 
+    protected bool isJump = false;
+
     private EnemyState _enemyState = EnemyState.PATROL;
 
     private PatrolState _patrolState = PatrolState.START;
@@ -75,8 +77,11 @@ public class EnemyControlScript : CharacterControlScript
 
     #endregion
 
-    #region プロパティ
+    #region プロパティ  
 
+    public bool IsJump { get => isJump; set => isJump = value; }
+
+    
     public Vector3 TargetDirection { get => _targetDirection; set => _targetDirection = value; }
 
     #endregion
@@ -91,6 +96,16 @@ public class EnemyControlScript : CharacterControlScript
 
         // 待機時間を設定
         _idleTime = _idleCoolTime;
+
+        OnInit();
+    }
+
+    /// <summary>
+    /// 更新前処理
+    /// </summary>
+    protected virtual void OnInit()
+    {
+
     }
 
     /// <summary>
@@ -126,7 +141,12 @@ public class EnemyControlScript : CharacterControlScript
                 break;
         }
 
-        FallInGravity();
+        EnemyControl();
+    }
+
+    protected virtual void EnemyControl()
+    {
+
     }
 
     /// <summary>
@@ -335,6 +355,14 @@ public class EnemyControlScript : CharacterControlScript
         {
             _characterAnimator.SetBool(DAMAGE_FLAG_NAME, true);
         }
+    }
+
+    /// <summary>
+    /// ダメージアニメーション終了処理
+    /// </summary>
+    public void EndDamageAnimation()
+    {
+        gameObject.SetActive(false);
     }
 
 }

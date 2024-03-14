@@ -139,7 +139,7 @@ public class CharacterControlScript : MonoBehaviour
     }
 
     /// <summary>
-    /// 初期化処理
+    /// 更新前処理
     /// </summary>
     protected virtual void OnInitialize(){ }
 
