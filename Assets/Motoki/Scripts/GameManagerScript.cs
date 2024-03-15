@@ -15,6 +15,8 @@ public class GameManagerScript : MonoBehaviour
 
     private CharacterControlScript[] _characterControlScripts = default;
 
+    private StarScript _starScript = default;
+
 	#endregion
 
 	/// <summary>
@@ -23,6 +25,8 @@ public class GameManagerScript : MonoBehaviour
 	private void Start () 
 	{
         _characterControlScripts = GameObject.FindObjectsOfType<CharacterControlScript>();
+
+        _starScript = GameObject.FindGameObjectWithTag("Star").GetComponent<StarScript>();
     }
 	
 	/// <summary>
@@ -34,5 +38,9 @@ public class GameManagerScript : MonoBehaviour
         {
             script.CharacterControl();
         }
+
+        _starScript.Rotate();
 	}
+
+
 }

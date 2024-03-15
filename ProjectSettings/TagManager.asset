@@ -12,6 +12,9 @@ TagManager:
   - Sphere
   - Enemy
   - BlackHole
+  - HpText
+  - GameCanvas
+  - Star
   layers:
   - Default
   - TransparentFX

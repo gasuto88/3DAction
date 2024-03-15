@@ -442,6 +442,7 @@ MonoBehaviour:
   _chaseCoolTime: 20
   _chaseDistance: 20
   _idleCoolTime: 0.5
+  _radius: 1
 --- !u!114 &6949478081133757420
 MonoBehaviour:
   m_ObjectHideFlags: 0

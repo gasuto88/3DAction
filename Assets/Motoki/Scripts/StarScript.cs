@@ -1,5 +1,5 @@
 /*-------------------------------------------------
-* #SCRIPTNAME#.cs
+* StarScript.cs
 * 
 * 作成日　2024/03/15
 * 更新日　2024/03/15
@@ -11,10 +11,16 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class #SCRIPTNAME# : MonoBehaviour 
+public class StarScript : MonoBehaviour 
 {
- 
+
 	#region フィールド変数
+
+	[SerializeField,Header("回転速度"),Range(0,2000)]
+	private float _rotationSpeed = 0f;
+
+	private Transform _myTransform = default;
+
 	#endregion
 
 	/// <summary>
@@ -22,14 +28,11 @@ public class #SCRIPTNAME# : MonoBehaviour
     /// </summary>
 	private void Start () 
 	{
-		
+		_myTransform = transform;
 	}
 	
-	/// <summary>
-    /// 更新処理
-    /// </summary>
-	private void Update () 
-	{
-		
-	}
+	public void Rotate()
+    {
+		_myTransform.Rotate(Vector3.up * _rotationSpeed * Time.deltaTime);
+    }
 }

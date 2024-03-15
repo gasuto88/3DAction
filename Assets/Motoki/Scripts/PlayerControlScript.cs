@@ -17,7 +17,7 @@ public class PlayerControlScript : CharacterControlScript
 
     private const float DISTANCE_TO_GROUND = 2f;
 
-    private const string ENEMY_LAYER_NAME = "Enemy";
+    private const string STAR_LAYER_NAME = "Star";
 
     // アニメーションの名前
     private const string JUMP_FLAG_NAME = "Jump";
@@ -35,20 +35,20 @@ public class PlayerControlScript : CharacterControlScript
     [SerializeField, Header("ジャンプ時間"), Range(0, 5)]
     private float _jumpCoolTime = 0f;
 
-    [SerializeField, Header("当たり判定の大きさ")]
-    private Vector3 _halfSize = default;
-
     [SerializeField, Header("点滅時間"), Range(0, 10)]
     private float _flashCoolTime = 0f;
 
     [SerializeField, Header("点滅間隔時間"), Range(0, 10)]
     private float _flashIntervalCoolTime = 0f;
 
-    [SerializeField,Header("ジャンプダメージ"),Range(0,10)]
+    [SerializeField, Header("ジャンプダメージ"), Range(0, 10)]
     private int _jumpDamage = 0;
 
-    [SerializeField,Header("衝突で受けるダメージ"),Range(0,10)]
+    [SerializeField, Header("衝突で受けるダメージ"), Range(0, 10)]
     private int _collisionDamage = 0;
+
+    [SerializeField, Header("当たり判定の大きさ")]
+    private Vector3 _halfSize = default;
 
     // 最大ジャンプ力
     private float _jumpPower = 0f;
@@ -72,6 +72,8 @@ public class PlayerControlScript : CharacterControlScript
     private bool isDamage = false;
 
     private SkinnedMeshRenderer _playerMeshRenderer = default;
+
+    private DisplayUIScript _displayUIScript = default;
 
     private JumpState _jumpState = JumpState.START;
 
@@ -103,11 +105,19 @@ public class PlayerControlScript : CharacterControlScript
         _flashIntervalTime = _flashIntervalCoolTime;
 
         _playerMeshRenderer = _myTransform.Find("Player(Mesh)").GetComponent<SkinnedMeshRenderer>();
+
+        _displayUIScript
+            = GameObject.FindGameObjectWithTag("GameCanvas").GetComponent<DisplayUIScript>();
     }
 
     public override void CharacterControl()
     {
         base.CharacterControl();
+
+        if (IsCollisionStar())
+        {
+
+        }
 
         if (_jumpState != JumpState.JUMP)
         {
@@ -154,6 +164,20 @@ public class PlayerControlScript : CharacterControlScript
         }
     }
 
+    private bool IsCollisionStar()
+    {
+        Collider[] enemyColliders
+            = Physics.OverlapBox(_myTransform.position + _myTransform.up * 1.5f, _halfSize,
+            _myTransform.rotation, LayerMask.GetMask(STAR_LAYER_NAME));
+
+        if (0 < enemyColliders.Length)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
     /// <summary>
     /// 衝突対象を求める処理
     /// </summary>
@@ -181,7 +205,7 @@ public class PlayerControlScript : CharacterControlScript
         Transform enemyTransform = CollisionEnemyDirection();
 
         // 衝突判定
-        if (!isCollision 
+        if (!isCollision
             && enemyTransform != null)
         {
             isCollision = true;
@@ -216,11 +240,17 @@ public class PlayerControlScript : CharacterControlScript
     /// <param name="damage">ダメージ</param>
     public override void DownHp(int damage)
     {
-        _hp -= damage;
-
-        if(_hp <= 0)
+        if (0 < _hp)
         {
+            _hp -= damage;
+        }
 
+        // HP表示
+        _displayUIScript.DisplayHpUI(_hp);
+
+        if (_hp <= 0)
+        {
+            // 死んだ
         }
     }
 
@@ -374,7 +404,7 @@ public class PlayerControlScript : CharacterControlScript
 
                 _playerMeshRenderer.enabled = true;
 
-                if(_flashIntervalTime <= 0f)
+                if (_flashIntervalTime <= 0f)
                 {
                     _flashIntervalTime = _flashIntervalCoolTime;
 
@@ -387,7 +417,7 @@ public class PlayerControlScript : CharacterControlScript
 
                 _playerMeshRenderer.enabled = false;
 
-                if(_flashIntervalTime <= 0f)
+                if (_flashIntervalTime <= 0f)
                 {
                     _flashIntervalTime = _flashIntervalCoolTime;
 
@@ -399,10 +429,10 @@ public class PlayerControlScript : CharacterControlScript
 
         _flashTime -= Time.deltaTime;
 
-        if(_flashTime <= 0f)
+        if (_flashTime <= 0f)
         {
             _flashTime = _flashCoolTime;
-            _playerMeshRenderer.enabled = true; 
+            _playerMeshRenderer.enabled = true;
             _damageState = DamageState.OFF;
             isDamage = false;
             isCollision = false;

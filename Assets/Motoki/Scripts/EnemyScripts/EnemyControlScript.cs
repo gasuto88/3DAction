@@ -43,6 +43,9 @@ public class EnemyControlScript : CharacterControlScript
     [SerializeField,Header("待機時間"),Range(0,100)]
     private float _idleCoolTime = 0f;
 
+    [SerializeField,Header("敵の半径"),Range(0,30)]
+    private float _radius = 0f; 
+
     private Transform _playerTransform = default;
 
     private Vector3 _targetDirection = default;
@@ -81,7 +84,8 @@ public class EnemyControlScript : CharacterControlScript
 
     public bool IsJump { get => isJump; set => isJump = value; }
 
-    
+    public float Radius { get => _radius; set => _radius = value; }
+
     public Vector3 TargetDirection { get => _targetDirection; set => _targetDirection = value; }
 
     #endregion
@@ -141,12 +145,49 @@ public class EnemyControlScript : CharacterControlScript
                 break;
         }
 
+        CollisionEnemy();
+
         EnemyControl();
     }
 
     protected virtual void EnemyControl()
     {
+        
+    }
 
+    private void CollisionEnemy()
+    {
+        Collider[] enemyColliders
+            = Physics.OverlapSphere(_myTransform.position + _myTransform.up * 1f,_radius,
+            LayerMask.GetMask(ENEMY_LAYER_NAME));
+
+        if (0 < enemyColliders.Length)
+        {
+            FixCollision(enemyColliders[0]);
+            
+        }
+    }
+
+    private void FixCollision(Collider enemy)
+    {
+        Vector3 direction = _myTransform.position - enemy.transform.position;
+
+        EnemyControlScript enemyScript = enemy.GetComponent<EnemyControlScript>();
+
+        float radius = enemyScript.Radius + _radius;
+
+        float distance 
+            = _planetManagerScript.DistanceToPlanet(enemy.transform.position, _myTransform.position);
+
+        float difference = radius - distance;
+
+        _myTransform.position += direction * difference;
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position + transform.up * 1f,_radius);
     }
 
     /// <summary>
@@ -311,16 +352,6 @@ public class EnemyControlScript : CharacterControlScript
             + RandomDirection() * (_nowPlanet.PlanetRadius);
 
         return randomPosition;
-    }
-
-    private void OnDrawGizmos()
-    {
-
-        Gizmos.color = Color.red;
-        if (_randomPosition != null)
-        {
-            Gizmos.DrawCube(_randomPosition, Vector3.one);
-        }
     }
 
     /// <summary>

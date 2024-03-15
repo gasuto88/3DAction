@@ -18,6 +18,8 @@ public class CharacterControlScript : MonoBehaviour
     // タグの名前
     private const string PLANET = "Planet";
 
+    protected const string ENEMY_LAYER_NAME = "Enemy";
+
     // アニメーション
     private const string RUN = "Run";
 
@@ -166,6 +168,7 @@ public class CharacterControlScript : MonoBehaviour
             isGround = IsGround();
         }
 
+        
         UpdateGravityDirection();
         
         if (_nowPlanet != null && !isChangePlanet)
@@ -344,10 +347,23 @@ public class CharacterControlScript : MonoBehaviour
 
         if(distance <= _nowPlanet.PlanetRadius)
         {
+            FixGround(distance);
+
             return true;
         }
         
         return false;
+    }
+
+    /// <summary>
+    /// 着地修正処理
+    /// </summary>
+    /// <param name="distance">惑星までの距離</param>
+    private void FixGround(float distance)
+    {
+        float difference = _nowPlanet.PlanetRadius - distance;
+
+        _myTransform.position += difference * _myTransform.up;
     }
 
     /// <summary>
