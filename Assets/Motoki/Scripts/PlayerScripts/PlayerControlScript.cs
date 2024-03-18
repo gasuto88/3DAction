@@ -21,6 +21,7 @@ public class PlayerControlScript : CharacterControlScript
 
     // アニメーションの名前
     private const string JUMP_FLAG_NAME = "Jump";
+    private const string DEATH_FLAG_NAME = "Death";
 
     // 半分
     private const int HALF = 2;
@@ -73,7 +74,9 @@ public class PlayerControlScript : CharacterControlScript
 
     private SkinnedMeshRenderer _playerMeshRenderer = default;
 
-    private DisplayUIScript _displayUIScript = default;
+    private UIControlScript _displayUIScript = default;
+
+    private GameManagerScript _gameManagerScript = default;
 
     private JumpState _jumpState = JumpState.START;
 
@@ -95,6 +98,9 @@ public class PlayerControlScript : CharacterControlScript
 
     #endregion
 
+    /// <summary>
+    /// 初期化処理
+    /// </summary>
     protected override void OnInitialize()
     {
         // タイマーの中間を設定
@@ -107,16 +113,23 @@ public class PlayerControlScript : CharacterControlScript
         _playerMeshRenderer = _myTransform.Find("Player(Mesh)").GetComponent<SkinnedMeshRenderer>();
 
         _displayUIScript
-            = GameObject.FindGameObjectWithTag("GameCanvas").GetComponent<DisplayUIScript>();
+            = GameObject.FindGameObjectWithTag("GameCanvas").GetComponent<UIControlScript>();
+
+        _gameManagerScript = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManagerScript>();
     }
 
+    /// <summary>
+    /// キャラクター制御処理
+    /// </summary>
     public override void CharacterControl()
     {
         base.CharacterControl();
 
+        // スターの衝突判定
         if (IsCollisionStar())
         {
-
+            // ゲームクリア
+            _gameManagerScript.GameClear();
         }
 
         if (_jumpState != JumpState.JUMP)
@@ -164,10 +177,14 @@ public class PlayerControlScript : CharacterControlScript
         }
     }
 
+    /// <summary>
+    /// スター衝突判定処理
+    /// </summary>
+    /// <returns>衝突判定</returns>
     private bool IsCollisionStar()
     {
         Collider[] enemyColliders
-            = Physics.OverlapBox(_myTransform.position + _myTransform.up * 1.5f, _halfSize,
+            = Physics.OverlapBox(_myTransform.position + _myTransform.up * 0.5f, _halfSize,
             _myTransform.rotation, LayerMask.GetMask(STAR_LAYER_NAME));
 
         if (0 < enemyColliders.Length)
@@ -185,7 +202,7 @@ public class PlayerControlScript : CharacterControlScript
     private Transform CollisionEnemyDirection()
     {
         Collider[] enemyColliders
-            = Physics.OverlapBox(_myTransform.position + _myTransform.up * 1.5f, _halfSize,
+            = Physics.OverlapBox(_myTransform.position + _myTransform.up * 0.5f, _halfSize,
             _myTransform.rotation, LayerMask.GetMask(ENEMY_LAYER_NAME));
 
         if (0 < enemyColliders.Length)
@@ -201,11 +218,11 @@ public class PlayerControlScript : CharacterControlScript
     /// </summary>
     private void CollisionEnemyAngle()
     {
-        // 衝突方向を設定
+        // 衝突対象を設定
         Transform enemyTransform = CollisionEnemyDirection();
 
         // 衝突判定
-        if (!isCollision
+        if (!isDamage && !isCollision
             && enemyTransform != null)
         {
             isCollision = true;
@@ -225,11 +242,14 @@ public class PlayerControlScript : CharacterControlScript
                 enemyTransform.GetComponent<CharacterControlScript>().DownHp(_jumpDamage);
             }
             // ダメージ判定
-            else
+            else　if(collisionAngle <= 110f)
             {
                 DownHp(_collisionDamage);
-                // ダメージ判定
-                isDamage = true;
+
+                if (0 < _hp)
+                {
+                    isDamage = true;
+                }
             }
         }
     }
@@ -250,14 +270,10 @@ public class PlayerControlScript : CharacterControlScript
 
         if (_hp <= 0)
         {
-            // 死んだ
+            _characterAnimator.SetBool(DEATH_FLAG_NAME, true);
+            // ゲームオーバー
+            _gameManagerScript.GameOver();
         }
-    }
-
-    private void OnDrawGizmos()
-    {
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireCube(transform.position + transform.up * 0.5f, _halfSize);
     }
 
     /// <summary>
@@ -351,7 +367,11 @@ public class PlayerControlScript : CharacterControlScript
             // 終了状態
             case JumpState.END:
 
-                stateTemp = JumpState.IDLE;
+                // 着地判定
+                if (isGround)
+                {
+                    stateTemp = JumpState.IDLE;
+                }
 
                 break;
         }

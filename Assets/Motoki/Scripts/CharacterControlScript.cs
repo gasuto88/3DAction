@@ -141,7 +141,7 @@ public class CharacterControlScript : MonoBehaviour
     }
 
     /// <summary>
-    /// 更新前処理
+    /// 初期化処理
     /// </summary>
     protected virtual void OnInitialize(){ }
 
@@ -155,7 +155,7 @@ public class CharacterControlScript : MonoBehaviour
         {
             Debug.LogError("死んだ");
             // GameManager側でゲームオーバー
-            return;
+            
         }
   
         // 今いる惑星を設定
@@ -167,7 +167,6 @@ public class CharacterControlScript : MonoBehaviour
         {
             isGround = IsGround();
         }
-
         
         UpdateGravityDirection();
         
@@ -184,7 +183,7 @@ public class CharacterControlScript : MonoBehaviour
 
             if(_planetChangeTime <= 0f)
             {
-                IsChangePlanet = false;
+                isChangePlanet = false;
 
                 _planetChangeTime = _planetChangeCoolTime;
             }

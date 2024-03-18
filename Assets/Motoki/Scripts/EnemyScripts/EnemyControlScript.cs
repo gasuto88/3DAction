@@ -34,9 +34,6 @@ public class EnemyControlScript : CharacterControlScript
     [SerializeField, Header("最大距離"), Range(0, 1000)]
     private float _maxDistance = 0f;
 
-    [SerializeField,Header("追尾時間"),Range(0,100)]
-    private float _chaseCoolTime = 0f;
-
     [SerializeField, Header("追尾距離"), Range(0, 100)]
     private float _chaseDistance = 0f;
 
@@ -52,13 +49,12 @@ public class EnemyControlScript : CharacterControlScript
 
     private Vector3 _randomPosition = default;
 
-    // 追尾時間
-    private float _chaseTime = 0f;
-
     // 待機時間
     private float _idleTime = 0f;
 
     protected bool isJump = false;
+
+    private Collider _enemyCollider = default;
 
     private EnemyState _enemyState = EnemyState.PATROL;
 
@@ -86,17 +82,21 @@ public class EnemyControlScript : CharacterControlScript
 
     public float Radius { get => _radius; set => _radius = value; }
 
+    public int Hp { get => _hp; set => _hp = value; }
+
     public Vector3 TargetDirection { get => _targetDirection; set => _targetDirection = value; }
 
     #endregion
 
+    /// <summary>
+    /// 初期化処理
+    /// </summary>
     protected override void OnInitialize()
     {
         // プレイヤーを取得
         _playerTransform = GameObject.FindGameObjectWithTag("Player").transform;
 
-        // 追尾時間を設定
-        _chaseTime = _chaseCoolTime;
+        _enemyCollider = GetComponent<Collider>();
 
         // 待機時間を設定
         _idleTime = _idleCoolTime;
@@ -105,7 +105,7 @@ public class EnemyControlScript : CharacterControlScript
     }
 
     /// <summary>
-    /// 更新前処理
+    /// 初期化処理
     /// </summary>
     protected virtual void OnInit()
     {
@@ -150,11 +150,17 @@ public class EnemyControlScript : CharacterControlScript
         EnemyControl();
     }
 
+    /// <summary>
+    /// 敵を制御する処理
+    /// </summary>
     protected virtual void EnemyControl()
     {
         
     }
 
+    /// <summary>
+    /// 敵同士の衝突処理
+    /// </summary>
     private void CollisionEnemy()
     {
         Collider[] enemyColliders
@@ -168,6 +174,10 @@ public class EnemyControlScript : CharacterControlScript
         }
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="enemy">衝突対象</param>
     private void FixCollision(Collider enemy)
     {
         Vector3 direction = _myTransform.position - enemy.transform.position;
@@ -182,12 +192,6 @@ public class EnemyControlScript : CharacterControlScript
         float difference = radius - distance;
 
         _myTransform.position += direction * difference;
-    }
-
-    private void OnDrawGizmos()
-    {
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position + transform.up * 1f,_radius);
     }
 
     /// <summary>
@@ -242,15 +246,10 @@ public class EnemyControlScript : CharacterControlScript
                 // 相手の距離
                 float targetDistance = _targetDirection.magnitude;
 
-                _chaseTime -= Time.deltaTime;
-
-                // 時間経過したら
+                
                 // 距離が離れたら
-                if(_chaseTime <= 0f 
-                    || _chaseDistance < targetDistance)
+                if(_chaseDistance < targetDistance)
                 {
-                    _chaseTime = _chaseCoolTime;
-
                     stateTemp = EnemyState.PATROL;
                 }
 
@@ -384,6 +383,7 @@ public class EnemyControlScript : CharacterControlScript
 
         if (_hp <= 0)
         {
+            _enemyCollider.enabled = false;
             _characterAnimator.SetBool(DAMAGE_FLAG_NAME, true);
         }
     }

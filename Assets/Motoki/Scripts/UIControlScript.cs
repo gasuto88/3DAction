@@ -1,5 +1,5 @@
 /*-------------------------------------------------
-* DisplayUIScript.cs
+* UIControlScript.cs
 * 
 * 作成日　2024/03/15
 * 更新日　2024/03/15
@@ -10,9 +10,9 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// UI表示クラス
+/// UI制御クラス
 /// </summary>
-public class DisplayUIScript : MonoBehaviour 
+public class UIControlScript : MonoBehaviour 
 {
 
 	#region フィールド変数
@@ -35,6 +35,8 @@ public class DisplayUIScript : MonoBehaviour
 
 	private Sprite[] _hpSprites = new Sprite[4];
 
+	private GameManagerScript _gameManagerScript = default;
+
     #endregion
 
 	/// <summary>
@@ -43,6 +45,8 @@ public class DisplayUIScript : MonoBehaviour
     private void Start()
     {
 		_hpSprites = new Sprite[] { _zeroHpSprite, _oneHpSprite, _twoHpSprite, _threeHpSprite };
+
+		_gameManagerScript = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManagerScript>();
     }
 
 	/// <summary>
@@ -54,5 +58,18 @@ public class DisplayUIScript : MonoBehaviour
 		_hpText.text = "" + hp;
 
 		_hpGageImage.sprite = _hpSprites[hp];
+    }
+
+	/// <summary>
+	/// アニメーションの終了判定
+	/// </summary>
+	private void EndBlackOutAnimation()
+    {
+		_gameManagerScript.EndBlackOut();
+    }
+
+	private void EndWhiteOutAnimation()
+    {
+		_gameManagerScript.EndWhiteOut();
     }
 }

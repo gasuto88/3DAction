@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 23067521898201130}
   - component: {fileID: 6117467532914431150}
   - component: {fileID: 135927931100726742}
-  m_Layer: 2
+  m_Layer: 9
   m_Name: Star
   m_TagString: Star
   m_Icon: {fileID: 0}
@@ -117,5 +117,5 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 0.33
+  m_Radius: 0.3
   m_Center: {x: 0, y: 0.045851946, z: 0}
