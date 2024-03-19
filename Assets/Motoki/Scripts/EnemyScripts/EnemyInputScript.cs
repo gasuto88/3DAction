@@ -44,6 +44,7 @@ public class EnemyInputScript : InputScript
         // 相手の方向を設定
         Vector3 targetDirection = _enemyControlScript.TargetDirection;
 
+        // ローカルに変換
         Vector3 localDirection = transform.InverseTransformDirection(targetDirection);
         
         // Vector2に変換
