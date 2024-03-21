@@ -35,6 +35,7 @@ public class UIControlScript : MonoBehaviour
 
 	private Sprite[] _hpSprites = new Sprite[4];
 
+	// ゲーム管理クラス
 	private GameManagerScript _gameManagerScript = default;
 
     #endregion

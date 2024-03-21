@@ -15,8 +15,10 @@ public class PlayerControlScript : CharacterControlScript
 {
     #region 定数
 
+    // 地面からの距離
     private const float DISTANCE_TO_GROUND = 2f;
 
+    // レイヤーの名前
     private const string STAR_LAYER_NAME = "Star";
 
     // アニメーションの名前
@@ -72,14 +74,19 @@ public class PlayerControlScript : CharacterControlScript
     // ダメージ判定
     private bool isDamage = false;
 
+    // プレイヤーのMeshRenderer
     private SkinnedMeshRenderer _playerMeshRenderer = default;
 
-    private UIControlScript _displayUIScript = default;
+    // UI制御クラス
+    private UIControlScript _uiControlScript = default;
 
+    // ゲーム管理クラス
     private GameManagerScript _gameManagerScript = default;
 
+    // ジャンプ状態
     private JumpState _jumpState = JumpState.START;
 
+    // ダメージ状態
     private DamageState _damageState = DamageState.OFF;
 
     private enum JumpState
@@ -106,15 +113,18 @@ public class PlayerControlScript : CharacterControlScript
         // タイマーの中間を設定
         _halfTime = _jumpCoolTime / HALF;
 
+        // 点滅時間を設定
         _flashTime = _flashCoolTime;
 
+        // 点滅感覚時間を設定
         _flashIntervalTime = _flashIntervalCoolTime;
 
+        // プレイヤーのSkinnedMeshRendererを取得
         _playerMeshRenderer = _myTransform.Find("Player(Mesh)").GetComponent<SkinnedMeshRenderer>();
 
-        _displayUIScript
+        // Script取得
+        _uiControlScript
             = GameObject.FindGameObjectWithTag("GameCanvas").GetComponent<UIControlScript>();
-
         _gameManagerScript = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManagerScript>();
     }
 
@@ -141,7 +151,8 @@ public class PlayerControlScript : CharacterControlScript
         // ジャンプ状態を取得
         _jumpState = JumpStateMachine();
 
-        CollisionEnemyAngle();
+        // 敵の衝突
+        CollisionEnemy();
 
         // ダメージ判定
         if (isDamage)
@@ -171,6 +182,7 @@ public class PlayerControlScript : CharacterControlScript
 
                 isCollision = false;
 
+                // ジャンプアニメーションを初期化
                 _characterAnimator.SetBool(JUMP_FLAG_NAME, false);
 
                 break;
@@ -214,9 +226,9 @@ public class PlayerControlScript : CharacterControlScript
     }
 
     /// <summary>
-    /// 衝突処理
+    /// 敵の衝突処理
     /// </summary>
-    private void CollisionEnemyAngle()
+    private void CollisionEnemy()
     {
         // 衝突対象を設定
         Transform enemyTransform = CollisionEnemyDirection();
@@ -266,7 +278,7 @@ public class PlayerControlScript : CharacterControlScript
         }
 
         // HP表示
-        _displayUIScript.DisplayHpUI(_hp);
+        _uiControlScript.DisplayHpUI(_hp);
 
         if (_hp <= 0)
         {

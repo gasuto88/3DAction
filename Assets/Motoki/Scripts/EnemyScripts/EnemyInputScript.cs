@@ -22,6 +22,7 @@ public class EnemyInputScript : InputScript
 
     #region フィールド変数
 
+    // 敵を制御するクラス
     private EnemyControlScript _enemyControlScript = default;
 
     #endregion
@@ -53,6 +54,10 @@ public class EnemyInputScript : InputScript
         return inputDirection;
     }
 
+    /// <summary>
+    /// ジャンプ入力判定
+    /// </summary>
+    /// <returns>入力判定</returns>
     public override bool IsJumpButtonDown()
     {
         return _enemyControlScript.IsJump;

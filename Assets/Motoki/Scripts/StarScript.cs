@@ -11,6 +11,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// スタークラス
+/// </summary>
 public class StarScript : MonoBehaviour 
 {
 
@@ -31,6 +34,9 @@ public class StarScript : MonoBehaviour
 		_myTransform = transform;
 	}
 	
+	/// <summary>
+	/// 回転処理
+	/// </summary>
 	public void Rotate()
     {
 		_myTransform.Rotate(Vector3.up * _rotationSpeed * Time.deltaTime);

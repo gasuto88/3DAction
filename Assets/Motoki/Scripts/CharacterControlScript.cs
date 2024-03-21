@@ -16,12 +16,10 @@ public class CharacterControlScript : MonoBehaviour
     #region 定数
 
     // タグの名前
-    private const string PLANET = "Planet";
-
     protected const string ENEMY_LAYER_NAME = "Enemy";
 
-    // アニメーション
-    private const string RUN = "Run";
+    // アニメーションの名前
+    private const string RUN_FLAG_NAME = "Run";
 
     #endregion
 
@@ -60,8 +58,10 @@ public class CharacterControlScript : MonoBehaviour
     // 移動速度
     private float _moveSpeed = 0f;
 
+    // 無重力時間
     private float _zeroGravityTime = 0f;
 
+    // 惑星変更時間
     private float _planetChangeTime = default;
 
     // 自分のTransform
@@ -70,7 +70,7 @@ public class CharacterControlScript : MonoBehaviour
     // 進行方向
     private Vector3 _moveVector = default;
 
-    // プレイヤーの子
+    // キャラクターの子オブジェクト
     protected Transform _child = default;
 
     // キャラクターのアニメーション
@@ -79,6 +79,7 @@ public class CharacterControlScript : MonoBehaviour
     // 入力クラス
     protected InputScript _inputScript = default;
 
+    // 重力の強さ
     private float _gravityPower = 0f;
 
     // 着地判定
@@ -90,18 +91,14 @@ public class CharacterControlScript : MonoBehaviour
     // 現在いる惑星
     protected PlanetScript _nowPlanet = default;
 
+    // 惑星管理クラス
     protected PlanetManagerScript _planetManagerScript = default;
 
+    // ブラックホールクラス
     private BlackHoleScript _blackHoleScript = default;
 
     // 重力方向
     private Vector3 _gravityDirection = Vector3.down;
-
-    #endregion
-
-    #region プロパティ
-
-    public bool IsChangePlanet { get => isChangePlanet; set => isChangePlanet = value; }
 
     #endregion
 
@@ -137,6 +134,7 @@ public class CharacterControlScript : MonoBehaviour
         _nowPlanet = _planetManagerScript.SetNowPlanet(
                 _myTransform.position, _nowPlanet, ref isChangePlanet);
 
+        // 初期化
         OnInitialize();
     }
 
@@ -177,6 +175,7 @@ public class CharacterControlScript : MonoBehaviour
         }
         else if (isChangePlanet)
         {
+            // 惑星変更時の回転
             RotateChangePlanet();
 
             _planetChangeTime -= Time.deltaTime;
@@ -209,6 +208,10 @@ public class CharacterControlScript : MonoBehaviour
             += _moveVector * _moveSpeed * Time.deltaTime;
     }
 
+    /// <summary>
+    /// HPを減らす処理
+    /// </summary>
+    /// <param name="damage">ダメージ</param>
     public virtual void DownHp(int damage) { }
 
     /// <summary>
@@ -253,7 +256,7 @@ public class CharacterControlScript : MonoBehaviour
         _moveVector
             = ((_myTransform.forward * moveInput.x) + (_myTransform.right * moveInput.y));
 
-        _characterAnimator.SetBool(RUN, true);
+        _characterAnimator.SetBool(RUN_FLAG_NAME, true);
     }
 
     /// <summary>
@@ -269,7 +272,7 @@ public class CharacterControlScript : MonoBehaviour
             _moveSpeed = 0f;
         }
 
-        _characterAnimator.SetBool(RUN, false);
+        _characterAnimator.SetBool(RUN_FLAG_NAME, false);
     }
 
     /// <summary>

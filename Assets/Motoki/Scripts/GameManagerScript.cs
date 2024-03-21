@@ -30,9 +30,11 @@ public class GameManagerScript : MonoBehaviour
     #region フィールド変数
 
     private Animator _canvasAnimator = default;
-
+    
+    // キャラクターを制御するクラス
     private CharacterControlScript[] _characterControlScripts = default;
 
+    // スタークラス
     private StarScript _starScript = default;
 
     private GameState _gameState = GameState.EXECUTE;
@@ -52,6 +54,7 @@ public class GameManagerScript : MonoBehaviour
     /// </summary>
 	private void Start () 
 	{
+        // すべてのCharacterControlScriptを取得
         _characterControlScripts = GameObject.FindObjectsOfType<CharacterControlScript>();
 
         _starScript = GameObject.FindGameObjectWithTag("Star").GetComponent<StarScript>();
@@ -100,21 +103,33 @@ public class GameManagerScript : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// ゲームクリア処理
+    /// </summary>
     public void GameClear()
     {
         _gameState = GameState.GAME_CLEAR;
     }
 
+    /// <summary>
+    /// ゲームオーバー処理
+    /// </summary>
     public void GameOver()
     {
         _gameState = GameState.GAME_OVER;
     }
 
+    /// <summary>
+    /// フェードアウト(黒)終了処理
+    /// </summary>
     public void EndBlackOut()
     {
         SceneManager.LoadScene(GAME_SCENE_NAME);
     }
 
+    /// <summary>
+    /// フェードアウト(白)終了処理
+    /// </summary>
     public void EndWhiteOut()
     {
         SceneManager.LoadScene(TITLE_SCENE);

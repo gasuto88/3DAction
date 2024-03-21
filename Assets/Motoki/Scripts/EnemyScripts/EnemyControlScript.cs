@@ -52,6 +52,7 @@ public class EnemyControlScript : CharacterControlScript
     // 待機時間
     private float _idleTime = 0f;
 
+    // ジャンプ判定
     protected bool isJump = false;
 
     private Collider _enemyCollider = default;
@@ -144,9 +145,10 @@ public class EnemyControlScript : CharacterControlScript
                 
                 break;
         }
-
+        // 敵同士の衝突処理
         CollisionEnemy();
 
+        // 敵を制御する
         EnemyControl();
     }
 
@@ -175,7 +177,7 @@ public class EnemyControlScript : CharacterControlScript
     }
 
     /// <summary>
-    /// 
+    /// 敵に衝突時のめり込み修正処理
     /// </summary>
     /// <param name="enemy">衝突対象</param>
     private void FixCollision(Collider enemy)
