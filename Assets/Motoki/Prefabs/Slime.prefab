@@ -83,11 +83,10 @@ MonoBehaviour:
   _hp: 1
   _viewAngle: 100
   _maxDistance: 10
-  _chaseCoolTime: 20
   _chaseDistance: 20
   _idleCoolTime: 0.5
   _radius: 1
-  _jumpMaxPower: 30
+  _jumpMaxPower: 20
   _jumpCoolTime: 0.3
 --- !u!114 &2567221795915379462
 MonoBehaviour:

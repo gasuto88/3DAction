@@ -151,7 +151,6 @@ public class CharacterControlScript : MonoBehaviour
         // ブラックホール判定
         if (_blackHoleScript.IsCollisionBlackHole(_myTransform.position))
         {
-            Debug.LogError("死んだ");
             // GameManager側でゲームオーバー
             
         }

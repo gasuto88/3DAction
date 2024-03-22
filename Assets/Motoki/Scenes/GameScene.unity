@@ -1138,12 +1138,12 @@ MonoBehaviour:
   _legTransform: {fileID: 96545799}
   _hp: 3
   _jumpMaxPower: 30
-  _jumpCoolTime: 0.5
+  _jumpCoolTime: 0.5015
   _flashCoolTime: 2
   _flashIntervalCoolTime: 0.1
   _jumpDamage: 1
   _collisionDamage: 1
-  _halfSize: {x: 0.3, y: 1, z: 0.3}
+  _halfSize: {x: 0.4, y: 1, z: 0.4}
 --- !u!114 &48546766
 MonoBehaviour:
   m_ObjectHideFlags: 0
