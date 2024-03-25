@@ -62,13 +62,16 @@ public class UIControlScript : MonoBehaviour
     }
 
 	/// <summary>
-	/// アニメーションの終了判定
+	/// フェードアウト（黒）終了判定処理
 	/// </summary>
 	private void EndBlackOutAnimation()
     {
 		_gameManagerScript.EndBlackOut();
     }
 
+	/// <summary>
+	/// フェードアウト（白）終了判定処理
+	/// </summary>
 	private void EndWhiteOutAnimation()
     {
 		_gameManagerScript.EndWhiteOut();

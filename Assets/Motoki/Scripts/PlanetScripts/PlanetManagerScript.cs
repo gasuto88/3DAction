@@ -8,6 +8,9 @@
 -------------------------------------------------*/
 using UnityEngine;
 
+/// <summary>
+/// 惑星管理クラス
+/// </summary>
 public class PlanetManagerScript : MonoBehaviour
 {
 
@@ -80,16 +83,6 @@ public class PlanetManagerScript : MonoBehaviour
 
         return scriptTemp;
     }
-    
-    //private void OnDrawGizmos()
-    //{
-    //    Gizmos.color = Color.red;
-    //    for (int i = 0; i < _planetScripts.Length; i++)
-    //    {
-    //        Gizmos.DrawWireSphere(
-    //            _planetScripts[i].transform.position, _planetScripts[i].PlanetRadius + _gravityScope);
-    //    }
-    //}
 
     /// <summary>
 	/// 惑星までの距離を求める処理

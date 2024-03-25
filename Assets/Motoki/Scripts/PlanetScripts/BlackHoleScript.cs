@@ -8,6 +8,9 @@
 -------------------------------------------------*/
 using UnityEngine;
 
+/// <summary>
+/// ブラックホールクラス
+/// </summary>
 public class BlackHoleScript : MonoBehaviour 
 {
 

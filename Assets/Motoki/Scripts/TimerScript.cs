@@ -8,6 +8,9 @@
 -------------------------------------------------*/
 using UnityEngine;
 
+/// <summary>
+/// タイマークラス
+/// </summary>
 public class TimerScript
 {
 	/// <summary>

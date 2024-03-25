@@ -31,6 +31,10 @@ public class PlayerInputScript : InputScript
 
     #endregion
 
+    /// <summary>
+    /// 移動入力判定処理
+    /// </summary>
+    /// <returns>Vector2の入力情報</returns>
     public override Vector2 InputMove()
     {
         // 入力取得
@@ -53,6 +57,10 @@ public class PlayerInputScript : InputScript
         return input;
     }
 
+    /// <summary>
+    /// ジャンプ入力処理
+    /// </summary>
+    /// <returns>入力判定</returns>
     public override bool IsJumpButtonDown()
     {
         if (Input.GetButtonDown(JUMP))

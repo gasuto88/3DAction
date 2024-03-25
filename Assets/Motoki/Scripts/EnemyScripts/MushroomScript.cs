@@ -8,11 +8,17 @@
 -------------------------------------------------*/
 using UnityEngine;
 
+/// <summary>
+/// マッシュルームクラス
+/// </summary>
 public class MushroomScript : EnemyControlScript
 {
-
+    /// <summary>
+    /// 敵を制御する処理
+    /// </summary>
     protected override void EnemyControl()
     {
+        // 重力
         FallInGravity();
     }
 }

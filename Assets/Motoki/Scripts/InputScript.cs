@@ -13,33 +13,15 @@ using UnityEngine;
 /// </summary>
 public abstract class InputScript : MonoBehaviour 
 {
-    #region 定数
-
-
-    #endregion
-
-    #region フィールド変数
-
-    #endregion
-
     /// <summary>
-    /// 移動の入力
+    /// 移動入力判定処理
     /// </summary>
-    /// <returns></returns>
+    /// <returns>Vector2の入力情報</returns>
     public abstract Vector2 InputMove();
 
     /// <summary>
-    /// ジャンプボタンを押した判定
+    /// ジャンプ入力判定処理
     /// </summary>
     /// <returns>入力判定</returns>
     public abstract bool IsJumpButtonDown();
-
-    /// <summary>
-    /// ジャンプボタンを離した判定
-    /// </summary>
-    /// <returns>入力判定</returns>
-    public bool IsJumpButtonUp()
-    {
-        return false;
-    }
 }

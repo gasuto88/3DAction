@@ -8,6 +8,9 @@
 -------------------------------------------------*/
 using UnityEngine;
 
+/// <summary>
+/// 惑星クラス
+/// </summary>
 public class PlanetScript : MonoBehaviour 
 {
     #region 定数

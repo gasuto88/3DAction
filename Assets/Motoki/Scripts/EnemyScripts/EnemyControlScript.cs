@@ -83,8 +83,6 @@ public class EnemyControlScript : CharacterControlScript
 
     public float Radius { get => _radius; set => _radius = value; }
 
-    public int Hp { get => _hp; set => _hp = value; }
-
     public Vector3 TargetDirection { get => _targetDirection; set => _targetDirection = value; }
 
     #endregion

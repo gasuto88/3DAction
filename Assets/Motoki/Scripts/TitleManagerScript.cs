@@ -9,6 +9,9 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+/// <summary>
+/// タイトル管理クラス
+/// </summary>
 public class TitleManagerScript : MonoBehaviour 
 {
 

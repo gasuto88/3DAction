@@ -37,9 +37,9 @@ public class EnemyInputScript : InputScript
     }
 
     /// <summary>
-    /// 移動入力処理
+    /// 移動入力判定処理
     /// </summary>
-    /// <returns></returns>
+    /// <returns>Vector2の入力情報</returns>
     public override Vector2 InputMove()
     {
         // 相手の方向を設定

@@ -7,10 +7,11 @@
 * 作成者　本木大地
 -------------------------------------------------*/
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// スライムクラス
+/// </summary>
 public class SlimeScript : EnemyControlScript
 {
 
@@ -55,6 +56,9 @@ public class SlimeScript : EnemyControlScript
 
     #endregion
 
+    /// <summary>
+    /// 初期化処理
+    /// </summary>
     protected override void OnInit()
     {
         // タイマーの中間を設定
@@ -63,6 +67,9 @@ public class SlimeScript : EnemyControlScript
         isJump = true;
     }
 
+    /// <summary>
+    /// 敵を制御する処理
+    /// </summary>
     protected override void EnemyControl()
     {
         if (_jumpState != JumpState.JUMP)

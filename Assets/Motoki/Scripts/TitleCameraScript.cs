@@ -8,6 +8,9 @@
 -------------------------------------------------*/
 using UnityEngine;
 
+/// <summary>
+/// タイトルカメラクラス
+/// </summary>
 public class TitleCameraScript : MonoBehaviour 
 {
 
