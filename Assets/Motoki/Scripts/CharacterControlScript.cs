@@ -37,8 +37,8 @@ public class CharacterControlScript : MonoBehaviour
     [SerializeField, Header("ブレーキ速度"), Range(0, 100)]
     private float _brakeSpeed = 0f;
 
-    [SerializeField, Header("重力が最大になるまでの速度"), Range(0, 100)]
-    private float _gravityMaxSpeed = 0f;
+    [SerializeField, Header("重力が最大になるまで加える力"), Range(0, 100)]
+    private float _gravityAddPower = 0f;
 
     [SerializeField, Header("重力回転速度"), Range(0, 400)]
     private float _gravityRotationSpeed = 0f;
@@ -107,6 +107,7 @@ public class CharacterControlScript : MonoBehaviour
     /// </summary>
     private void Start()
     {
+        // 自分のTransformを設定
         _myTransform = transform;
 
         // 子を取得
@@ -147,14 +148,7 @@ public class CharacterControlScript : MonoBehaviour
     /// キャラクター制御処理
     /// </summary>
     public virtual void CharacterControl()
-    {
-        // ブラックホール判定
-        if (_blackHoleScript.IsCollisionBlackHole(_myTransform.position))
-        {
-            // GameManager側でゲームオーバー
-            
-        }
-  
+    {  
         // 今いる惑星を設定
         _nowPlanet 
             = _planetManagerScript.SetNowPlanet(
@@ -162,11 +156,14 @@ public class CharacterControlScript : MonoBehaviour
 
         if (_nowPlanet != null)
         {
+            // 着地判定を設定
             isGround = IsGround();
         }
-        
+
+        // 重力方向を更新する処理
         UpdateGravityDirection();
         
+        // 惑星変更判定
         if (_nowPlanet != null && !isChangePlanet)
         {
             // 重力回転
@@ -179,10 +176,13 @@ public class CharacterControlScript : MonoBehaviour
 
             _planetChangeTime -= Time.deltaTime;
 
+            // 時間経過したら
             if(_planetChangeTime <= 0f)
             {
+                // 惑星変更判定を初期化
                 isChangePlanet = false;
 
+                // 惑星変更時間を初期化
                 _planetChangeTime = _planetChangeCoolTime;
             }
         }      
@@ -193,12 +193,15 @@ public class CharacterControlScript : MonoBehaviour
         // 入力取得
         Vector2 moveInput = _inputScript.InputMove();
 
+        // 入力判定
         if (moveInput != Vector2.zero)
         {
+            // 移動計算
             MoveCalculation(moveInput);
         }
         else if (moveInput == Vector2.zero)
         {
+            // ブレーキ計算
             BrakeCalculation();
         }
 
@@ -282,8 +285,9 @@ public class CharacterControlScript : MonoBehaviour
         // 着地判定
         if (!isGround)
         {
+            // 重力をなめらかに加える
             _gravityPower 
-                = UpGravityPower(_gravityPower, _planetManagerScript.GravityMaxPower, _gravityMaxSpeed);
+                = UpGravityPower(_gravityPower, _planetManagerScript.GravityMaxPower, _gravityAddPower);
 
             // 重力
             _myTransform.position += _gravityDirection * _gravityPower * Time.deltaTime;
@@ -346,8 +350,10 @@ public class CharacterControlScript : MonoBehaviour
             = _planetManagerScript.DistanceToPlanet(
                 _nowPlanet.transform.position, _legTransform.position);
 
+        // 惑星よりも内側だったら
         if(distance <= _nowPlanet.PlanetRadius)
         {
+            // 着地修正
             FixGround(distance);
 
             return true;
@@ -368,19 +374,19 @@ public class CharacterControlScript : MonoBehaviour
     }
 
     /// <summary>
-    /// 重力を増やす処理
+    /// 重力をなめらかに加える処理
     /// </summary>
-    /// <param name="power"></param>
-    /// <param name="MaxPower"></param>
-    /// <param name="Speed"></param>
-    /// <returns></returns>
-    private float UpGravityPower(float power, float MaxPower, float Speed)
+    /// <param name="nowPower">現在の力</param>
+    /// <param name="MaxPower">最大の力</param>
+    /// <param name="addPower">加える力</param>
+    /// <returns>現在の力</returns>
+    private float UpGravityPower(float nowPower, float MaxPower, float addPower)
     {
-        if (power <= MaxPower)
+        if (nowPower <= MaxPower)
         {
-            power += Speed * Time.deltaTime;
+            nowPower += addPower * Time.deltaTime;
         }
 
-        return power;
+        return nowPower;
     }
 }

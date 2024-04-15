@@ -25,6 +25,9 @@ public class PlayerControlScript : CharacterControlScript
     private const string JUMP_FLAG_NAME = "Jump";
     private const string DEATH_FLAG_NAME = "Death";
 
+    // 潰れる角度
+    private const float CRUSH_ANGLE = 110f;
+
     // 半分
     private const int HALF = 2;
 
@@ -125,7 +128,8 @@ public class PlayerControlScript : CharacterControlScript
         // Script取得
         _uiControlScript
             = GameObject.FindGameObjectWithTag("GameCanvas").GetComponent<UIControlScript>();
-        _gameManagerScript = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManagerScript>();
+        _gameManagerScript 
+            = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManagerScript>();
     }
 
     /// <summary>
@@ -167,7 +171,7 @@ public class PlayerControlScript : CharacterControlScript
             case JumpState.START:
 
                 JumpInit();
-
+        
                 break;
 
             // ジャンプ状態
@@ -247,14 +251,14 @@ public class PlayerControlScript : CharacterControlScript
             float collisionAngle = Vector3.Angle(_myTransform.up, enemyDirection);
 
             // 踏みつけ判定
-            if (110f < collisionAngle)
+            if (CRUSH_ANGLE < collisionAngle)
             {
                 _jumpState = JumpState.START;
 
                 enemyTransform.GetComponent<CharacterControlScript>().DownHp(_jumpDamage);
             }
             // ダメージ判定
-            else　if(collisionAngle <= 110f)
+            else　if(collisionAngle <= CRUSH_ANGLE)
             {
                 DownHp(_collisionDamage);
 
@@ -463,6 +467,7 @@ public class PlayerControlScript : CharacterControlScript
 
         if (_flashTime <= 0f)
         {
+            // 初期化
             _flashTime = _flashCoolTime;
             _playerMeshRenderer.enabled = true;
             _damageState = DamageState.OFF;

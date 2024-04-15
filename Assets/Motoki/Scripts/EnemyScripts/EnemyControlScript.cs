@@ -43,10 +43,13 @@ public class EnemyControlScript : CharacterControlScript
     [SerializeField,Header("敵の半径"),Range(0,30)]
     private float _radius = 0f; 
 
+    // プレイヤー座標
     private Transform _playerTransform = default;
 
+    // 対象の方向
     private Vector3 _targetDirection = default;
 
+    // ランダム目標地点
     private Vector3 _randomPosition = default;
 
     // 待機時間
@@ -55,10 +58,13 @@ public class EnemyControlScript : CharacterControlScript
     // ジャンプ判定
     protected bool isJump = false;
 
+    // 敵のCollider
     private Collider _enemyCollider = default;
 
+    // 敵の状態
     private EnemyState _enemyState = EnemyState.PATROL;
 
+    // 探索状態
     private PatrolState _patrolState = PatrolState.START;
 
     private enum EnemyState
@@ -95,11 +101,13 @@ public class EnemyControlScript : CharacterControlScript
         // プレイヤーを取得
         _playerTransform = GameObject.FindGameObjectWithTag("Player").transform;
 
+        // 敵のColliderを取得
         _enemyCollider = GetComponent<Collider>();
 
         // 待機時間を設定
         _idleTime = _idleCoolTime;
 
+        // 初期化処理
         OnInit();
     }
 
@@ -118,6 +126,7 @@ public class EnemyControlScript : CharacterControlScript
     {
         base.CharacterControl();
 
+        // 敵の状態を更新
         _enemyState = EnemyStateMachine();
 
         switch (_enemyState)
@@ -125,6 +134,7 @@ public class EnemyControlScript : CharacterControlScript
             // 待機状態
             case EnemyState.IDLE:
 
+                // 対象方向を初期化
                 _targetDirection = Vector3.zero;
 
                 break;
@@ -132,6 +142,7 @@ public class EnemyControlScript : CharacterControlScript
             // 探索状態
             case EnemyState.PATROL:
 
+                // 探索
                 Patrol();
 
                 break;
@@ -169,6 +180,7 @@ public class EnemyControlScript : CharacterControlScript
 
         if (0 < enemyColliders.Length)
         {
+            // 衝突処理
             FixCollision(enemyColliders[0]);
             
         }
@@ -225,7 +237,6 @@ public class EnemyControlScript : CharacterControlScript
 
                     stateTemp = EnemyState.PATROL;
                 }
-
                 break;
 
             // 探索状態
@@ -238,21 +249,19 @@ public class EnemyControlScript : CharacterControlScript
 
                     stateTemp = EnemyState.IDLE;
                 }
-
                 break;
+
             // 追尾状態
             case EnemyState.CHASE:
 
                 // 相手の距離
                 float targetDistance = _targetDirection.magnitude;
-
                 
                 // 距離が離れたら
                 if(_chaseDistance < targetDistance)
                 {
                     stateTemp = EnemyState.PATROL;
                 }
-
                 break;
         }
 
