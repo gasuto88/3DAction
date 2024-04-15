@@ -19,56 +19,68 @@ public class CharacterControlScript : MonoBehaviour
     protected const string ENEMY_LAYER_NAME = "Enemy";
 
     // アニメーションの名前
-    private const string RUN_FLAG_NAME = "Run";
+    private const string ANIMATION_RUN = "Run";
 
     #endregion
 
     #region フィールド変数
 
-    [SerializeField, Header("移動速度"), Range(0, 100)]
+    [SerializeField, Header("移動速度"), Min(0f)]
     private float _moveMaxSpeed = 0f;
 
-    [SerializeField, Header("振り向き速度"), Range(0, 500)]
+    [SerializeField, Header("振り向き速度"), Min(0f)]
     private float _rotationSpeed = 0f;
 
-    [SerializeField, Header("加速速度"), Range(0, 100)]
+    [SerializeField, Header("加速速度"), Min(0f)]
     private float _accelSpeed = 0f;
 
-    [SerializeField, Header("ブレーキ速度"), Range(0, 100)]
+    [SerializeField, Header("ブレーキ速度"), Min(0f)]
     private float _brakeSpeed = 0f;
 
-    [SerializeField, Header("重力が最大になるまで加える力"), Range(0, 100)]
+    [SerializeField, Header("重力が最大になるまで加える力"), Min(0f)]
     private float _gravityAddPower = 0f;
 
-    [SerializeField, Header("重力回転速度"), Range(0, 400)]
+    [SerializeField, Header("重力回転速度"), Min(0f)]
     private float _gravityRotationSpeed = 0f;
 
-    [SerializeField, Header("無重力時間"), Range(0, 10)]
-    private float _zeroGravityCoolTime = 0f;
+    [SerializeField, Header("無重力時間"), Min(0f)]
+    private float _zeroGravityTime = 0f;
 
-    [SerializeField, Header("惑星変更時間"), Range(0, 10)]
-    private float _planetChangeCoolTime = 0f;
+    [SerializeField, Header("惑星変更時間"), Min(0f)]
+    private float _planetChangeTime = 0f;
 
-    [SerializeField,Header("足の座標")]
+    [SerializeField, Header("足の座標")]
     protected Transform _legTransform = default;
 
-    [SerializeField,Header("キャラクターのHP"),Range(0,5)]
+    [SerializeField, Header("キャラクターのHP"), Min(0f)]
     protected int _hp = 0;
 
     // 移動速度
     private float _moveSpeed = 0f;
 
     // 無重力時間
-    private float _zeroGravityTime = 0f;
+    private float _initZeroGravityTime = 0f;
 
     // 惑星変更時間
-    private float _planetChangeTime = default;
+    private float _initPlanetChangeTime = 0f;
+
+    // 重力の強さ
+    private float _gravityPower = 0f;
+
+    // 惑星変更判定
+    private bool isChangePlanet = false;
+
+    // 進行方向
+    private Vector3 _moveDirection = default;
+
+    // ブラックホールクラス
+    private BlackHoleScript _blackHoleScript = default;
+
+    // 重力方向
+    private Vector3 _gravityDirection = Vector3.down;
 
     // 自分のTransform
     protected Transform _myTransform = default;
-
-    // 進行方向
-    private Vector3 _moveVector = default;
 
     // キャラクターの子オブジェクト
     protected Transform _child = default;
@@ -79,26 +91,14 @@ public class CharacterControlScript : MonoBehaviour
     // 入力クラス
     protected InputScript _inputScript = default;
 
-    // 重力の強さ
-    private float _gravityPower = 0f;
-
     // 着地判定
     protected bool isGround = false;
-
-    // 惑星変更判定
-    private bool isChangePlanet = false;
 
     // 現在いる惑星
     protected PlanetScript _nowPlanet = default;
 
     // 惑星管理クラス
     protected PlanetManagerScript _planetManagerScript = default;
-
-    // ブラックホールクラス
-    private BlackHoleScript _blackHoleScript = default;
-
-    // 重力方向
-    private Vector3 _gravityDirection = Vector3.down;
 
     #endregion
 
@@ -126,10 +126,10 @@ public class CharacterControlScript : MonoBehaviour
             .GetComponent<BlackHoleScript>();
 
         // 無重力時間を設定
-        _zeroGravityTime = _zeroGravityCoolTime;
+        _initZeroGravityTime = _zeroGravityTime;
 
         // 惑星変更時間
-        _planetChangeTime = _planetChangeCoolTime;
+        _initPlanetChangeTime = _planetChangeTime;
 
         // 今いる惑星を設定
         _nowPlanet = _planetManagerScript.SetNowPlanet(
@@ -142,17 +142,17 @@ public class CharacterControlScript : MonoBehaviour
     /// <summary>
     /// 初期化処理
     /// </summary>
-    protected virtual void OnInitialize(){ }
+    protected virtual void OnInitialize() { }
 
     /// <summary>
     /// キャラクター制御処理
     /// </summary>
     public virtual void CharacterControl()
-    {  
+    {
         // 今いる惑星を設定
-        _nowPlanet 
+        _nowPlanet
             = _planetManagerScript.SetNowPlanet(
-                _myTransform.position,_nowPlanet,ref isChangePlanet);
+                _myTransform.position, _nowPlanet, ref isChangePlanet);
 
         if (_nowPlanet != null)
         {
@@ -162,14 +162,14 @@ public class CharacterControlScript : MonoBehaviour
 
         // 重力方向を更新する処理
         UpdateGravityDirection();
-        
+
         // 惑星変更判定
         if (_nowPlanet != null && !isChangePlanet)
         {
             // 重力回転
             RotateGravity();
         }
-        else if (isChangePlanet)
+        else
         {
             // 惑星変更時の回転
             RotateChangePlanet();
@@ -177,15 +177,15 @@ public class CharacterControlScript : MonoBehaviour
             _planetChangeTime -= Time.deltaTime;
 
             // 時間経過したら
-            if(_planetChangeTime <= 0f)
+            if (_planetChangeTime <= 0f)
             {
                 // 惑星変更判定を初期化
                 isChangePlanet = false;
 
                 // 惑星変更時間を初期化
-                _planetChangeTime = _planetChangeCoolTime;
+                _planetChangeTime = _initPlanetChangeTime;
             }
-        }      
+        }
 
         // 進行方向を向く
         LookForward();
@@ -207,7 +207,7 @@ public class CharacterControlScript : MonoBehaviour
 
         // 移動
         _myTransform.position
-            += _moveVector * _moveSpeed * Time.deltaTime;
+            += _moveDirection * _moveSpeed * Time.deltaTime;
     }
 
     /// <summary>
@@ -227,7 +227,7 @@ public class CharacterControlScript : MonoBehaviour
             _gravityDirection
                 = (_nowPlanet.PlanetTransform.position - _myTransform.position).normalized;
 
-            _zeroGravityTime = _zeroGravityCoolTime;
+            _zeroGravityTime = _initZeroGravityTime;
         }
         else if (_nowPlanet == null)
         {
@@ -255,10 +255,10 @@ public class CharacterControlScript : MonoBehaviour
         }
 
         // 移動方向を計算
-        _moveVector
+        _moveDirection
             = ((_myTransform.forward * moveInput.x) + (_myTransform.right * moveInput.y));
 
-        _characterAnimator.SetBool(RUN_FLAG_NAME, true);
+        _characterAnimator.SetBool(ANIMATION_RUN, true);
     }
 
     /// <summary>
@@ -274,7 +274,7 @@ public class CharacterControlScript : MonoBehaviour
             _moveSpeed = 0f;
         }
 
-        _characterAnimator.SetBool(RUN_FLAG_NAME, false);
+        _characterAnimator.SetBool(ANIMATION_RUN, false);
     }
 
     /// <summary>
@@ -286,7 +286,7 @@ public class CharacterControlScript : MonoBehaviour
         if (!isGround)
         {
             // 重力をなめらかに加える
-            _gravityPower 
+            _gravityPower
                 = UpGravityPower(_gravityPower, _planetManagerScript.GravityMaxPower, _gravityAddPower);
 
             // 重力
@@ -315,10 +315,10 @@ public class CharacterControlScript : MonoBehaviour
     /// </summary>
     private void LookForward()
     {
-        if (_moveVector != Vector3.zero)
+        if (_moveDirection != Vector3.zero)
         {
-            Quaternion forwardRotate 
-                = Quaternion.LookRotation(_moveVector, -_gravityDirection);
+            Quaternion forwardRotate
+                = Quaternion.LookRotation(_moveDirection, -_gravityDirection);
 
             _child.rotation
                 = Quaternion.Slerp(
@@ -351,14 +351,14 @@ public class CharacterControlScript : MonoBehaviour
                 _nowPlanet.transform.position, _legTransform.position);
 
         // 惑星よりも内側だったら
-        if(distance <= _nowPlanet.PlanetRadius)
+        if (distance <= _nowPlanet.PlanetRadius)
         {
             // 着地修正
             FixGround(distance);
 
             return true;
         }
-        
+
         return false;
     }
 
