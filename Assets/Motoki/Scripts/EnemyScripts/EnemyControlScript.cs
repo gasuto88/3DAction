@@ -17,8 +17,6 @@ public class EnemyControlScript : CharacterControlScript
 
     #region 定数
 
-    private const int HALF = 2;
-
     private const float MARGIN_DISTANCE = 1f;
 
     // アニメーションの名前
@@ -31,16 +29,16 @@ public class EnemyControlScript : CharacterControlScript
     [SerializeField,Header("視野角"),Range(0,360)]
     private float _viewAngle = 0f;
 
-    [SerializeField, Header("最大距離"), Range(0, 1000)]
+    [SerializeField, Header("最大距離"), Min(0f)]
     private float _maxDistance = 0f;
 
-    [SerializeField, Header("追尾距離"), Range(0, 100)]
+    [SerializeField, Header("追尾距離"), Min(0f)]
     private float _chaseDistance = 0f;
 
-    [SerializeField,Header("待機時間"),Range(0,100)]
-    private float _idleCoolTime = 0f;
+    [SerializeField,Header("待機時間"), Min(0f)]
+    private float _idleTime = 0f;
 
-    [SerializeField,Header("敵の半径"),Range(0,30)]
+    [SerializeField,Header("敵の半径"), Min(0f)]
     private float _radius = 0f; 
 
     // プレイヤー座標
@@ -53,10 +51,7 @@ public class EnemyControlScript : CharacterControlScript
     private Vector3 _randomPosition = default;
 
     // 待機時間
-    private float _idleTime = 0f;
-
-    // ジャンプ判定
-    protected bool isJump = false;
+    private float _initIdleTime = 0f;
 
     // 敵のCollider
     private Collider _enemyCollider = default;
@@ -81,11 +76,14 @@ public class EnemyControlScript : CharacterControlScript
         END
     }
 
+    // ジャンプ判定
+    protected bool _isJump = false;
+
     #endregion
 
     #region プロパティ  
 
-    public bool IsJump { get => isJump; set => isJump = value; }
+    public bool IsJump { get => _isJump; set => _isJump = value; }
 
     public float Radius { get => _radius; set => _radius = value; }
 
@@ -105,26 +103,15 @@ public class EnemyControlScript : CharacterControlScript
         _enemyCollider = GetComponent<Collider>();
 
         // 待機時間を設定
-        _idleTime = _idleCoolTime;
-
-        // 初期化処理
-        OnInit();
+        _idleTime = _initIdleTime;   
     }
 
     /// <summary>
-    /// 初期化処理
+    /// キャラクター更新処理
     /// </summary>
-    protected virtual void OnInit()
+    public override void UpdateCharacter()
     {
-
-    }
-
-    /// <summary>
-    /// キャラクター制御処理
-    /// </summary>
-    public override void CharacterControl()
-    {
-        base.CharacterControl();
+        base.UpdateCharacter();
 
         // 敵の状態を更新
         _enemyState = EnemyStateMachine();
@@ -146,6 +133,7 @@ public class EnemyControlScript : CharacterControlScript
                 Patrol();
 
                 break;
+
             // 追尾状態
             case EnemyState.CHASE:
 
@@ -176,13 +164,12 @@ public class EnemyControlScript : CharacterControlScript
     {
         Collider[] enemyColliders
             = Physics.OverlapSphere(_myTransform.position + _myTransform.up * 1f,_radius,
-            LayerMask.GetMask(ENEMY_LAYER_NAME));
+            LayerMask.GetMask(ENEMY_LAYER));
 
         if (0 < enemyColliders.Length)
         {
             // 衝突処理
-            FixCollision(enemyColliders[0]);
-            
+            FixCollision(enemyColliders[0]);         
         }
     }
 
@@ -233,7 +220,7 @@ public class EnemyControlScript : CharacterControlScript
                 if(_idleTime <= 0f)
                 {
                     // 経過時間を初期化
-                    _idleTime = _idleCoolTime;
+                    _idleTime = _initIdleTime;
 
                     stateTemp = EnemyState.PATROL;
                 }
@@ -308,7 +295,7 @@ public class EnemyControlScript : CharacterControlScript
         float targetDistance = targetDirection.magnitude;
 
         // コサイン計算
-        float cosHalf = Mathf.Cos(_viewAngle / HALF * Mathf.Deg2Rad);
+        float cosHalf = Mathf.Cos(_viewAngle / 2 * Mathf.Deg2Rad);
 
         // 内積計算
         float innerProduct = Vector3.Dot(_child.forward, targetDirection.normalized);

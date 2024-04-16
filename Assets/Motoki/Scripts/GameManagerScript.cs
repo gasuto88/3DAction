@@ -82,7 +82,7 @@ public class GameManagerScript : MonoBehaviour
 
                 foreach (CharacterControlScript script in _characterControlScripts)
                 {
-                    script.CharacterControl();
+                    script.UpdateCharacter();
                 }
 
                 _starScript.Rotate();

@@ -59,12 +59,14 @@ public class SlimeScript : EnemyControlScript
     /// <summary>
     /// 初期化処理
     /// </summary>
-    protected override void OnInit()
+    protected override void OnInitialize()
     {
+        base.OnInitialize();
+
         // タイマーの中間を設定
         _halfTime = _jumpCoolTime / HALF;
 
-        isJump = true;
+        _isJump = true;
     }
 
     /// <summary>
@@ -196,7 +198,7 @@ public class SlimeScript : EnemyControlScript
             // 終了状態
             case JumpState.END:
 
-                if (isGround)
+                if (_isGround)
                 {
                     stateTemp = JumpState.IDLE;
                 }

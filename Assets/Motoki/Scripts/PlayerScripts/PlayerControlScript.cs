@@ -19,38 +19,35 @@ public class PlayerControlScript : CharacterControlScript
     private const float DISTANCE_TO_GROUND = 2f;
 
     // レイヤーの名前
-    private const string STAR_LAYER_NAME = "Star";
+    private const string STAR_LAYER = "Star";
 
     // アニメーションの名前
-    private const string JUMP_FLAG_NAME = "Jump";
-    private const string DEATH_FLAG_NAME = "Death";
+    private const string JUMP_ANIMATION = "Jump";
+    private const string DEATH_ANIMATION = "Death";
 
     // 潰れる角度
     private const float CRUSH_ANGLE = 110f;
-
-    // 半分
-    private const int HALF = 2;
 
     #endregion
 
     #region フィールド定数
 
-    [SerializeField, Header("ジャンプ力"), Range(0, 1000)]
+    [SerializeField, Header("ジャンプ力"), Min(0f)]
     private float _jumpMaxPower = 0f;
 
-    [SerializeField, Header("ジャンプ時間"), Range(0, 5)]
-    private float _jumpCoolTime = 0f;
+    [SerializeField, Header("ジャンプ時間"), Min(0f)]
+    private float _jumpTime = 0f;
 
-    [SerializeField, Header("点滅時間"), Range(0, 10)]
-    private float _flashCoolTime = 0f;
+    [SerializeField, Header("点滅時間"), Min(0f)]
+    private float _flashTime = 0f;
 
-    [SerializeField, Header("点滅間隔時間"), Range(0, 10)]
-    private float _flashIntervalCoolTime = 0f;
+    [SerializeField, Header("点滅間隔時間"), Min(0f)]
+    private float _flashIntervalTime = 0f;
 
-    [SerializeField, Header("ジャンプダメージ"), Range(0, 10)]
+    [SerializeField, Header("ジャンプダメージ"), Min(0f)]
     private int _jumpDamage = 0;
 
-    [SerializeField, Header("衝突で受けるダメージ"), Range(0, 10)]
+    [SerializeField, Header("衝突で受けるダメージ"), Min(0f)]
     private int _collisionDamage = 0;
 
     [SerializeField, Header("当たり判定の大きさ")]
@@ -59,23 +56,26 @@ public class PlayerControlScript : CharacterControlScript
     // 最大ジャンプ力
     private float _jumpPower = 0f;
 
-    // タイマー
-    private float _jumpTime = 0f;
+    // タイマー(初期化用)
+    private float _initJumpTime = 0f;
 
     // タイマーの中間
     private float _halfTime = 0f;
 
     // 点滅時間
-    private float _flashTime = 0f;
+    private float _initFlashTime = 0f;
 
     // 点滅間隔時間
-    private float _flashIntervalTime = 0f;
+    private float _initFlashIntervalTime = 0f;
 
     // 衝突判定
-    private bool isCollision = false;
+    private bool _isCollision = false;
 
     // ダメージ判定
-    private bool isDamage = false;
+    private bool _isDamage = false;
+
+    // ダメージエフェクト判定
+    private bool _isDamageEfect = false;
 
     // プレイヤーのMeshRenderer
     private SkinnedMeshRenderer _playerMeshRenderer = default;
@@ -87,10 +87,7 @@ public class PlayerControlScript : CharacterControlScript
     private GameManagerScript _gameManagerScript = default;
 
     // ジャンプ状態
-    private JumpState _jumpState = JumpState.START;
-
-    // ダメージ状態
-    private DamageState _damageState = DamageState.OFF;
+    private JumpState _jumpState = JumpState.START;  
 
     private enum JumpState
     {
@@ -98,12 +95,6 @@ public class PlayerControlScript : CharacterControlScript
         START,
         JUMP,
         END
-    }
-
-    private enum DamageState
-    {
-        ON,
-        OFF
     }
 
     #endregion
@@ -114,13 +105,13 @@ public class PlayerControlScript : CharacterControlScript
     protected override void OnInitialize()
     {
         // タイマーの中間を設定
-        _halfTime = _jumpCoolTime / HALF;
+        _halfTime = _initJumpTime / 2;
 
         // 点滅時間を設定
-        _flashTime = _flashCoolTime;
+        _flashTime = _initFlashTime;
 
         // 点滅感覚時間を設定
-        _flashIntervalTime = _flashIntervalCoolTime;
+        _flashIntervalTime = _initFlashIntervalTime;
 
         // プレイヤーのSkinnedMeshRendererを取得
         _playerMeshRenderer = _myTransform.Find("Player(Mesh)").GetComponent<SkinnedMeshRenderer>();
@@ -133,11 +124,11 @@ public class PlayerControlScript : CharacterControlScript
     }
 
     /// <summary>
-    /// キャラクター制御処理
+    /// キャラクター更新処理
     /// </summary>
-    public override void CharacterControl()
+    public override void UpdateCharacter()
     {
-        base.CharacterControl();
+        base.UpdateCharacter();
 
         // スターの衝突判定
         if (IsCollisionStar())
@@ -159,7 +150,7 @@ public class PlayerControlScript : CharacterControlScript
         CollisionEnemy();
 
         // ダメージ判定
-        if (isDamage)
+        if (_isDamage)
         {
             // ダメージ点滅処理
             FlashingDamage();
@@ -184,10 +175,10 @@ public class PlayerControlScript : CharacterControlScript
             // 終了状態
             case JumpState.END:
 
-                isCollision = false;
+                _isCollision = false;
 
                 // ジャンプアニメーションを初期化
-                _characterAnimator.SetBool(JUMP_FLAG_NAME, false);
+                _characterAnimator.SetBool(JUMP_ANIMATION, false);
 
                 break;
         }
@@ -201,7 +192,7 @@ public class PlayerControlScript : CharacterControlScript
     {
         Collider[] enemyColliders
             = Physics.OverlapBox(_myTransform.position + _myTransform.up * 0.5f, _halfSize,
-            _myTransform.rotation, LayerMask.GetMask(STAR_LAYER_NAME));
+            _myTransform.rotation, LayerMask.GetMask(STAR_LAYER));
 
         if (0 < enemyColliders.Length)
         {
@@ -219,7 +210,7 @@ public class PlayerControlScript : CharacterControlScript
     {
         Collider[] enemyColliders
             = Physics.OverlapBox(_myTransform.position + _myTransform.up * 0.5f, _halfSize,
-            _myTransform.rotation, LayerMask.GetMask(ENEMY_LAYER_NAME));
+            _myTransform.rotation, LayerMask.GetMask(ENEMY_LAYER));
 
         if (0 < enemyColliders.Length)
         {
@@ -238,10 +229,10 @@ public class PlayerControlScript : CharacterControlScript
         Transform enemyTransform = CollisionEnemyDirection();
 
         // 衝突判定
-        if (!isDamage && !isCollision
+        if (!_isDamage && !_isCollision
             && enemyTransform != null)
         {
-            isCollision = true;
+            _isCollision = true;
 
             // 衝突方向を計算
             Vector3 enemyDirection
@@ -264,7 +255,7 @@ public class PlayerControlScript : CharacterControlScript
 
                 if (0 < _hp)
                 {
-                    isDamage = true;
+                    _isDamage = true;
                 }
             }
         }
@@ -286,7 +277,7 @@ public class PlayerControlScript : CharacterControlScript
 
         if (_hp <= 0)
         {
-            _characterAnimator.SetBool(DEATH_FLAG_NAME, true);
+            _characterAnimator.SetBool(DEATH_ANIMATION, true);
             // ゲームオーバー
             _gameManagerScript.GameOver();
         }
@@ -317,12 +308,12 @@ public class PlayerControlScript : CharacterControlScript
     /// </summary>
     private void JumpInit()
     {
-        _characterAnimator.SetBool(JUMP_FLAG_NAME, true);
+        _characterAnimator.SetBool(JUMP_ANIMATION, true);
 
         _jumpPower = 0f;
 
         // タイマーの初期化
-        _jumpTime = _jumpCoolTime;
+        _jumpTime = _initJumpTime;
     }
 
     /// <summary>
@@ -331,7 +322,7 @@ public class PlayerControlScript : CharacterControlScript
     private void Jump()
     {
         _jumpPower
-            = CalculationJumpPower(_jumpPower, _jumpMaxPower, _jumpTime, _jumpCoolTime);
+            = CalculationJumpPower(_jumpPower, _jumpMaxPower, _jumpTime, _initJumpTime);
 
         // 上方向に移動
         _myTransform.position
@@ -384,7 +375,7 @@ public class PlayerControlScript : CharacterControlScript
             case JumpState.END:
 
                 // 着地判定
-                if (isGround)
+                if (_isGround)
                 {
                     stateTemp = JumpState.IDLE;
                 }
@@ -434,45 +425,39 @@ public class PlayerControlScript : CharacterControlScript
     {
         _flashIntervalTime -= Time.deltaTime;
 
-        switch (_damageState)
+        if (_isDamageEfect)
         {
-            case DamageState.ON:
+            _playerMeshRenderer.enabled = true;
 
-                _playerMeshRenderer.enabled = true;
+            if (_flashIntervalTime <= 0f)
+            {
+                _flashIntervalTime = _initFlashIntervalTime;
 
-                if (_flashIntervalTime <= 0f)
-                {
-                    _flashIntervalTime = _flashIntervalCoolTime;
-
-                    _damageState = DamageState.OFF;
-                }
-
-                break;
-
-            case DamageState.OFF:
-
-                _playerMeshRenderer.enabled = false;
-
-                if (_flashIntervalTime <= 0f)
-                {
-                    _flashIntervalTime = _flashIntervalCoolTime;
-
-                    _damageState = DamageState.ON;
-                }
-
-                break;
+                _isDamageEfect = false;
+            }
         }
+        else
+        {
+            _playerMeshRenderer.enabled = false;
+
+            if (_flashIntervalTime <= 0f)
+            {
+                _flashIntervalTime = _initFlashIntervalTime;
+
+                _isDamageEfect = true;
+            }
+        }        
 
         _flashTime -= Time.deltaTime;
 
         if (_flashTime <= 0f)
         {
             // 初期化
-            _flashTime = _flashCoolTime;
+            _flashTime = _initFlashTime;
             _playerMeshRenderer.enabled = true;
-            _damageState = DamageState.OFF;
-            isDamage = false;
-            isCollision = false;
+            _isDamageEfect = false;
+            _isDamage = false;
+            _isCollision = false;
         }
     }
 }
