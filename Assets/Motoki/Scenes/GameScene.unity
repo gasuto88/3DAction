@@ -1131,16 +1131,16 @@ MonoBehaviour:
   _rotationSpeed: 5
   _accelSpeed: 5
   _brakeSpeed: 25
-  _gravityMaxSpeed: 30
+  _gravityAddPower: 30
   _gravityRotationSpeed: 5
-  _zeroGravityCoolTime: 3
-  _planetChangeCoolTime: 3
+  _zeroGravityTime: 3
+  _planetChangeTime: 3
   _legTransform: {fileID: 96545799}
   _hp: 3
   _jumpMaxPower: 30
-  _jumpCoolTime: 0.5015
-  _flashCoolTime: 2
-  _flashIntervalCoolTime: 0.1
+  _jumpTime: 0.5
+  _flashTime: 2
+  _flashIntervalTime: 0.1
   _jumpDamage: 1
   _collisionDamage: 1
   _halfSize: {x: 0.4, y: 1, z: 0.4}
@@ -2456,7 +2456,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.38890237, y: -1e-45, z: 0, w: 0.921279}
+  m_LocalRotation: {x: 0.38890237, y: 3e-45, z: -1e-45, w: 0.921279}
   m_LocalPosition: {x: 0.8, y: 27.02, z: -19.75}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -2563,7 +2563,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 983550341}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.38890237, y: -1e-45, z: -0, w: 0.921279}
+  m_LocalRotation: {x: 0.38890237, y: 3e-45, z: -1e-45, w: 0.921279}
   m_LocalPosition: {x: 0.8, y: 27.02, z: -19.75}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0

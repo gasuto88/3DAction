@@ -431,17 +431,16 @@ MonoBehaviour:
   _rotationSpeed: 5
   _accelSpeed: 3
   _brakeSpeed: 30
-  _gravityMaxSpeed: 50
+  _gravityAddPower: 50
   _gravityRotationSpeed: 10
-  _zeroGravityCoolTime: 3
-  _planetChangeCoolTime: 3
+  _zeroGravityTime: 3
+  _planetChangeTime: 3
   _legTransform: {fileID: 5359490524337475995}
   _hp: 1
   _viewAngle: 100
   _maxDistance: 10
-  _chaseCoolTime: 20
   _chaseDistance: 20
-  _idleCoolTime: 0.5
+  _idleTime: 0.5
   _radius: 1
 --- !u!114 &6949478081133757420
 MonoBehaviour:

@@ -103,7 +103,7 @@ public class EnemyControlScript : CharacterControlScript
         _enemyCollider = GetComponent<Collider>();
 
         // 待機時間を設定
-        _idleTime = _initIdleTime;   
+        _initIdleTime = _idleTime;   
     }
 
     /// <summary>

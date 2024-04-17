@@ -87,7 +87,7 @@ public class PlayerControlScript : CharacterControlScript
     private GameManagerScript _gameManagerScript = default;
 
     // ジャンプ状態
-    private JumpState _jumpState = JumpState.START;  
+    private JumpState _jumpState = JumpState.IDLE;  
 
     private enum JumpState
     {
@@ -105,13 +105,15 @@ public class PlayerControlScript : CharacterControlScript
     protected override void OnInitialize()
     {
         // タイマーの中間を設定
-        _halfTime = _initJumpTime / 2;
+        _halfTime = _jumpTime / 2;
+
+        _initJumpTime = _jumpTime;
 
         // 点滅時間を設定
-        _flashTime = _initFlashTime;
+        _initFlashTime = _flashTime;
 
         // 点滅感覚時間を設定
-        _flashIntervalTime = _initFlashIntervalTime;
+        _initFlashIntervalTime = _flashIntervalTime;
 
         // プレイヤーのSkinnedMeshRendererを取得
         _playerMeshRenderer = _myTransform.Find("Player(Mesh)").GetComponent<SkinnedMeshRenderer>();
